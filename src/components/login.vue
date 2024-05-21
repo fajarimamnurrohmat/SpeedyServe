@@ -5,7 +5,7 @@
         <div class="name_login">Log In</div>
         <div class="name_brand">SpeedyServe</div>
       </div>
-      <form style="text-align: left; margin-bottom: 70px;">
+      <form style="text-align: left; margin-bottom: 70px">
         <div class="mb-4">
           <label for="exampleInputEmail1" class="form-label">Username</label>
           <input
@@ -25,14 +25,14 @@
         </div>
       </form>
       <router-link to="/mainsidebar">
-          <button
-            type="submit"
-            class="btn btn-primary mb-4"
-            style="border-radius: 20px;"
-          >
-            Masuk
-          </button>
-        </router-link>
+        <button
+          type="submit"
+          class="btn btn-primary mb-4"
+          style="border-radius: 20px"
+        >
+          Masuk
+        </button>
+      </router-link>
     </div>
   </div>
 </template>
@@ -44,7 +44,7 @@
   height: 450px;
   width: 380px;
   border-radius: 30px;
-  background-color:gainsboro;
+  background-color: gainsboro;
 }
 
 .name_login {

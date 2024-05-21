@@ -25,8 +25,8 @@
           <router-link to="/login">
             <div class="card" style="height: 200px">
               <div class="card-body">
-                <div class="administrator p-3">
-                  <i class="fas fa-user-cog fa-3x mb-2"></i>
+                <div class="koki p-3">
+                  <i class="fas fa-utensils fa-3x mb-2"></i>
                   <p class="name_login">Koki</p>
                 </div>
               </div>
@@ -84,6 +84,7 @@
   height: 100%;
 }
 
+.koki,
 .kasir,
 .administrator {
   text-align: center;
@@ -95,6 +96,8 @@
   margin-top: 10px;
 }
 
+.name_login,
+.fa-utensils,
 .fa-cash-register,
 .fa-user-cog {
   color: #555;
