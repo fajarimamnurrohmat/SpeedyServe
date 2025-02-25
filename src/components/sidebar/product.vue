@@ -1,6 +1,6 @@
 <template>
     <div class="container_all border border-2 p-3">
-      <h2 class="name_category">Tambah Barang</h2>
+      <h2 class="name_category">Tambah Menu</h2>
       <div class="row" style="margin-bottom: 20px;">
         <div class="col add_produk_name">
           <label for="id_produk" class="form-label">Nama Barang</label>

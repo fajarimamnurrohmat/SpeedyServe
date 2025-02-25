@@ -1,102 +1,57 @@
 <template>
-  <!--Main Navigation-->
   <header>
     <!-- Navbar -->
-    <nav
-      id="main-navbar"
-      class="navbar navbar-expand-lg navbar-light fixed-top"
-    >
-      <!-- Container wrapper -->
+    <nav id="main-navbar" class="navbar  fixed-top">
       <div class="container">
-        <!-- Brand -->
         <a class="navbar-brand" href="#">
           <div class="name_brand">SpeedyServe</div>
           <div class="name_desc">NaSgOr MbK InDaH</div>
         </a>
-        <!-- Toggle button -->
-        <button @click="toggleSidebar">
-          <i class="fas fa-bars"></i>
-        </button>
+        <i class="fas fa-bars" style="color: #E6DF1D;" @click="toggleSidebar"></i>
       </div>
-      <!-- Container wrapper -->
     </nav>
-    <!-- Navbar -->
+    
     <!-- Sidebar -->
-    <nav
-      id="sidebarMenu"
-      :class="{ show: sidebarOpen }"
-      class="collapse d-lg-block sidebar collapse"
-    >
-      <div class="position-sticky">
-        <div class="list-group list-group-flush mx-3 mt-5">
-          <router-link
-            to="/mainsidebar/order"
-            class="list-group-item list-group-item-action py-2 ripple"
-            aria-current="true"
-            @click="closeSidebar"
-          >
-            <i class="fas fa-money-bill fa-fw me-3"></i><span>Pesanan</span>
-          </router-link>
-          <router-link
-            to="/mainsidebar/detailorder"
-            class="list-group-item list-group-item-action py-2 ripple"
-            aria-current="true"
-            @click="closeSidebar"
-          >
-            <i class="fas fa-chart-line fa-fw me-3"></i
-            ><span>Daftar Pesanan</span>
-          </router-link>
-          <router-link
-            to="/mainsidebar/category"
-            class="list-group-item list-group-item-action py-2 ripple"
-            aria-current="true"
-            @click="closeSidebar"
-          >
-            <i class="fas fa-chart-bar fa-fw me-3"></i><span>Kategori</span>
-          </router-link>
-
-          <router-link
-            to="/mainsidebar/produk"
-            class="list-group-item list-group-item-action py-2 ripple"
-            aria-current="true"
-            @click="closeSidebar"
-          >
-            <i class="fas fa-chart-bar fa-fw me-3"></i
-            ><span>Barang</span>
-          </router-link>
-          <router-link
-            to="/mainsidebar/transaksi"
-            class="list-group-item list-group-item-action py-2 ripple"
-            aria-current="true"
-            @click="closeSidebar"
-          >
-            <i class="fas fa-tachometer-alt fa-fw me-3"></i
-            ><span>Penjualan</span>
-          </router-link>
-        </div>
+    <nav id="sidebarMenu" :class="{ show: sidebarOpen }" class="sidebar">
+      <div class="sidebar-content">
+        <router-link to="/mainsidebar/order" class="sidebar-item" @click="closeSidebar">
+          <i class="fas fa-money-bill"></i>
+          <span>Pesanan</span>
+        </router-link>
+        <router-link to="/mainsidebar/detailorder" class="sidebar-item" @click="closeSidebar">
+          <i class="fas fa-list"></i>
+          <span>Daftar Pesanan</span>
+        </router-link>
+        <router-link to="/mainsidebar/category" class="sidebar-item" @click="closeSidebar">
+          <i class="fas fa-th-large"></i>
+          <span>Kategori</span>
+        </router-link>
+        <router-link to="/mainsidebar/produk" class="sidebar-item" @click="closeSidebar">
+          <i class="fas fa-utensils"></i>
+          <span>Menu</span>
+        </router-link>
+        <router-link to="/mainsidebar/transaksi" class="sidebar-item" @click="closeSidebar">
+          <i class="fas fa-chart-line"></i>
+          <span>Penjualan</span>
+        </router-link>
       </div>
       <div class="logout-section">
         <a class="logout" href="#">
-          <div class="name_logout" style="color: red;">Logout</div>
+          <i class="fas fa-sign-out-alt" style="color: red;"></i>
+          <span style="color: red;">Logout</span>
         </a>
       </div>
     </nav>
-    <!-- Sidebar -->
   </header>
-  <!--Main Navigation-->
-
-  <!--Main layout-->
-  <main :style="{ marginLeft: sidebarOpen ? '250px' : '0' }"> <!-- Adjust marginLeft instead of marginTop -->
+  
+  <main :style="{ marginLeft: sidebarOpen ? '250px' : '0' }">
     <div class="container pt-4">
       <router-view></router-view>
     </div>
   </main>
-  <!--Main layout-->
 </template>
 
 <script>
-import { RouterView } from "vue-router";
-
 export default {
   data() {
     return {
@@ -108,77 +63,69 @@ export default {
       this.sidebarOpen = !this.sidebarOpen;
     },
     closeSidebar() {
-      this.sidebarOpen = false;
-    }
+      if (window.innerWidth <= 991.98) {
+        this.sidebarOpen = false;
+      }
+    },
   },
 };
 </script>
 
 <style>
+
+.navbar {
+  background: linear-gradient(135deg, #318407, #0B1E02);
+}
 .name_brand {
   font-family: "Poppins", sans-serif;
   font-size: 1.2rem;
   font-weight: bold;
-  color: black;
+  color: #E6DF1D;
 }
 .name_desc {
   font-family: "Poppins", sans-serif;
   font-size: 0.6rem;
-  color: black;
-}
-
-body {
-  background-color: #fbfbfb;
+  color: #fbfbfb;
 }
 
 .sidebar {
-  background-color: gainsboro;
+  background: linear-gradient(135deg, #318407, #0B1E02);
   position: fixed;
   top: 0;
   bottom: 0;
-  left: 0;
-  padding: 58px 0 0; /* Height of navbar */
-  box-shadow: 0 2px 5px 0 rgb(0 0 0 / 5%), 0 2px 10px 0 rgb(0 0 0 / 5%);
-  width: 270px;
-  z-index: 600;
-  transition: left 0.3s ease; /* Animasi saat toggler diklik */
-  left: -300px; /* Sidebar secara default tersembunyi */
+  left: -300px;
+  width: 250px;
+  padding: 70px 15px 20px;
+  transition: left 0.3s ease;
 }
-
 .sidebar.show {
-  left: 0; /* Tampilkan sidebar saat kelas 'show' ditambahkan */
+  left: 0;
+}
+.sidebar-content {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
 }
 
-@media (max-width: 991.98px) {
-  .sidebar {
-    width: 270px; /* Set the width for mobile devices */
-  }
+.sidebar-item {
+  display: flex;
+  align-items: center;
+  color: white;
+  font-size: 16px;
+  text-decoration: none;
+  padding: 10px 15px;
+  transition: 0.3s;
 }
 
-.sidebar .active {
+.sidebar-item i {
+  margin-right: 10px;
+  font-size: 18px;
+}
+
+.sidebar-item:hover {
+  color: #E6DF1D;
+  background: rgba(255, 255, 255, 0.1);
   border-radius: 5px;
-  box-shadow: 0 2px 5px 0 rgb(0 0 0 / 16%), 0 2px 10px 0 rgb(0 0 0 / 12%);
-}
-
-.sidebar-sticky {
-  position: relative;
-  top: 0;
-  height: calc(100vh - 48px);
-  padding-top: 0.5rem;
-  overflow-x: hidden; 
-  overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
-}
-
-.list-group-item {
-  background-color: gainsboro;
-  margin-bottom: 40px;
-}
-
-.navbar {
-  background-color: gainsboro;
-  border-radius: 5px;
-  box-shadow: 0 2px 5px 0 rgb(0 0 0 / 16%), 0 2px 10px 0 rgb(0 0 0 / 12%);
-  height: 70px;
 }
 
 .logout-section {
@@ -187,19 +134,13 @@ body {
   width: 100%;
   text-align: center;
 }
-
 .logout {
-  display: block;
-  padding: 10px 0;
+  color: red;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
   text-decoration: none;
 }
-
-main {
-  transition: margin-left 0.3s ease; /* Add transition for smooth animation */
-}
-
-.router-view {
-  min-height: calc(100vh - 70px); /* Adjust the min-height */
-}
-
 </style>

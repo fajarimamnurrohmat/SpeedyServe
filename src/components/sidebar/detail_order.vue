@@ -30,6 +30,7 @@
             <th scope="col">Meja/T.away</th>
             <th scope="col">Total</th>
             <th scope="col">Action</th>
+            <th scope="col">Status</th>
           </tr>
         </thead>
         <tbody>
@@ -40,9 +41,11 @@
             <td>{{ order.price }}</td>
             <td>
               <router-link>
-                <button class="btn_action btn_delete">Detail</button>
+                <button class="btn_action" style="color: yellow;">Detail</button>
               </router-link>
-              <button class="btn_action btn_edit">Selesai</button>
+            </td>
+            <td>
+              {{ order.status }}
             </td>
           </tr>
         </tbody>
@@ -55,15 +58,15 @@ export default {
   data() {
     return {
       products: [
-        { id: 1, customer: "Rindi", T_away: "3", price: 64000 },
-        { id: 2, customer: "Sandi", T_away: "1", price: 74000 },
-        { id: 3, customer: "Dika", T_away: "take away", price: 93000 },
-        { id: 4, customer: "Ayus", T_away: "take away", price: 140000 },
-        { id: 5, customer: "Suprih", T_away: "take away", price: 103000 },
-        { id: 7, customer: "Laila", T_away: "1", price: 180000 },
-        { id: 8, customer: "Gilang", T_away: "take away", price: 120000 },
-        { id: 9, customer: "Parto", T_away: "take away", price: 22000 },
-        { id: 10, customer: "Nani", T_away: "4", price: 13000 },
+        { id: 1, customer: "Rindi", T_away: "3", price: 64000, status: "Proses" },
+        { id: 2, customer: "Sandi", T_away: "1", price: 74000, status: "Proses" },
+        { id: 3, customer: "Dika", T_away: "take away", price: 93000, status: "Dalam antrian" },
+        { id: 4, customer: "Ayus", T_away: "take away", price: 140000, status: "Dalam antrian" },
+        { id: 5, customer: "Suprih", T_away: "take away", price: 103000, status: "Dalam antrian" },
+        { id: 7, customer: "Laila", T_away: "1", price: 180000, status: "Dalam antrian" },
+        { id: 8, customer: "Gilang", T_away: "take away", price: 120000, status: "Dalam antrian" },
+        { id: 9, customer: "Parto", T_away: "take away", price: 22000, status: "Dalam antrian" },
+        { id: 10, customer: "Nani", T_away: "4", price: 13000, status: "Dalam antrian" },
       ],
       currentPage: 1,
       rowsPerPage: 10,
