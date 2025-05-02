@@ -51,6 +51,13 @@
 </template>
 
 <style scoped>
+@media (max-width: 768px) {
+  .row {
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+  }
+}
 .name_welcome {
   font-family: "Poppins", sans-serif;
   font-size: 1rem;

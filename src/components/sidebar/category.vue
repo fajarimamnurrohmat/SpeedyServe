@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <h2 class="name_category">Tambah Kategori</h2>
+    <h2 class="name_category">Data Kategori</h2>
     <button @click="showModal = true" class="btn_add_category">
       <i class="fas fa-plus"></i> Tambah kategori
     </button>
@@ -8,29 +8,22 @@
     <!-- Modal -->
     <div v-if="showModal" class="modal-overlay" @click.self="closeModal">
       <div class="modal-content">
-        <div class="modal-header">
-          <h4>
-            {{
-              editIndex !== null ? "Edit Data Bengkel" : "Input Data Bengkel"
-            }}
-          </h4>
-          <span
-            class="close-modal"
-            @click="closeModal"
-            style="color: red; text-align: right"
-            >&times;</span
-          >
-        </div>
+        <span
+          class="close-modal"
+          @click="closeModal"
+          style="color: red; text-align: right"
+          >&times;
+        </span>
+        <h4 class="header-modal">
+          {{
+            editIndex !== null ? "Edit Data Kategori" : "Input Data Kategori"
+          }}
+        </h4>
         <div class="form-row">
           <div class="form-group">
-            <label for="ruangBengkel">Nama Ruang Bengkel</label>
-            <p>Masukkan nama ruang bengkel</p>
-            <input
-              type="text"
-              id="ruangBengkel"
-              class="form-controll"
-              
-            />
+            <label for="kategori">Nama Kategori</label>
+            <p>Masukkan nama Kategori</p>
+            <input type="text" id="kategori" class="form-controll" />
           </div>
         </div>
         <div style="margin-top: 10px; text-align: left">
@@ -126,10 +119,10 @@ export default {
   },
   methods: {
     closeModal() {
-            this.showModal = false;
-            this.resetForm();
-        },
-  }
+      this.showModal = false;
+      this.resetForm();
+    },
+  },
 };
 </script>
 
@@ -144,11 +137,6 @@ export default {
   margin-bottom: 20px;
   text-align: left;
   font-weight: bold;
-}
-
-.add_category_name {
-  text-align: left;
-  margin-bottom: 20px;
 }
 
 .btn_add_category {
@@ -282,81 +270,82 @@ export default {
   color: black;
 }
 
+.header-modal {
+  color: #e6df1d;
+  text-align: left;
+  margin-bottom: 1.5rem;
+}
 .modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
 }
 
 .modal-content {
-    background: #0B1E02;
-    padding: 20px;
-    border-radius: 10px;
-    width: 500px;
-    max-width: 90%;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    animation: fadeIn 0.3s ease-in-out;
-}
-
-.modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    color: white;
-    margin-bottom: -1rem;
-    border-bottom: none;
+  background: #225b07;
+  padding: 20px;
+  border-radius: 10px;
+  width: 500px;
+  max-width: 90%;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  animation: fadeIn 0.3s ease-in-out;
 }
 
 .close-modal {
-    font-size: 24px;
-    cursor: pointer;
+  font-size: 24px;
+  cursor: pointer;
 }
 
 .form-row {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 15px;
-    text-align: left;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 15px;
+  text-align: left;
 }
 
 .form-group label,
 .form-group p {
-    color: white;
+  color: white;
 }
 
 .form-group p {
-    margin-top: -9px;
-    margin-bottom: 10px;
-    font-size: 12px;
-    font-weight: 400;
+  margin-top: -4px;
+  margin-bottom: 10px;
+  font-size: 12px;
+  font-weight: 400;
 }
 
 .form-group {
-    width: 100%;
+  width: 100%;
 }
 
 .form-controll {
-    color: black;
-    width: 16rem;
-    padding: 8px;
-    font-size: 14px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    background-color: white;
+  color: black;
+  width: 16rem;
+  padding: 8px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background-color: white;
 }
 
+.btn-add-bengkel{
+  background-color: #007bff;
+}
+
+.btn-add-bengkel:hover{
+  background-color: #035cba;
+  transform: translateY(-2px);
+}
 /* Additional mobile styles */
 @media (max-width: 576px) {
-  .container_all {
-    padding: 10px;
-  }
   .btn_add_category {
     font-size: 14px;
   }
@@ -372,5 +361,12 @@ export default {
     font-size: 12px;
     padding: 3px 6px;
   }
+  .tampil-baris {
+    font-size: 12px;
+  }
+  .search-bar-container {
+    font-size: 12px;
+  }
+  
 }
 </style>
