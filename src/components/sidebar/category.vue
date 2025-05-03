@@ -12,31 +12,35 @@
           class="close-modal"
           @click="closeModal"
           style="color: red; text-align: right"
-          >&times;
+        >
+          &times;
         </span>
         <h4 class="header-modal">
-          {{
-            editIndex !== null ? "Edit Data Kategori" : "Input Data Kategori"
-          }}
+          {{ editIndex !== null ? 'Edit Data Kategori' : 'Input Data Kategori' }}
         </h4>
         <div class="form-row">
           <div class="form-group">
             <label for="kategori">Nama Kategori</label>
             <p>Masukkan nama Kategori</p>
-            <input type="text" id="kategori" class="form-controll" />
+            <input
+              type="text"
+              id="kategori"
+              class="form-controll"
+              v-model="kategoriInput"
+            />
           </div>
         </div>
         <div style="margin-top: 10px; text-align: left">
-          <button @click="addOrUpdateBengkel" class="btn-add-bengkel">
+          <button @click="addOrUpdateKategori" class="btn-add-bengkel">
             {{ editIndex !== null ? "Update Data" : "Simpan Data" }}
           </button>
         </div>
       </div>
     </div>
     <!-- End of Modal -->
-    <hr
-      style="border: 1px solid black; margin-top: 25px; margin-bottom: 25px"
-    />
+
+    <hr style="border: 1px solid black; margin-top: 25px; margin-bottom: 25px" />
+
     <div class="info-page">
       <div class="tampil-baris" style="text-align: left">
         Tampilkan:
@@ -69,12 +73,16 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(category, index) in paginatedCategories" :key="index">
-            <td>{{ category.id }}</td>
-            <td>{{ category.name }}</td>
+          <tr v-for="(category, index) in paginatedCategories" :key="category.id_category">
+            <td>{{ category.id_category }}</td>
+            <td>{{ category.nama_category }}</td>
             <td>
-              <button class="btn_action btn_delete">Hapus</button>
-              <button class="btn_action btn_edit">Edit</button>
+              <button class="btn_action btn_delete" @click="deleteCategory(category.id_category)">
+                Hapus
+              </button>
+              <button class="btn_action btn_edit" @click="editCategory(index)">
+                Edit
+              </button>
             </td>
           </tr>
         </tbody>
@@ -84,43 +92,154 @@
 </template>
 
 <script>
+import axios from "axios";
+import Swal from "sweetalert2"; // Import SweetAlert2
+
 export default {
   data() {
     return {
       showModal: false,
       editIndex: null,
-      categories: [
-        { id: 101, name: "Makanan" },
-        { id: 102, name: "Minuman" },
-        { id: 103, name: "Camilan" },
-        { id: 104, name: "Bumbu" },
-        { id: 105, name: "Sayuran" },
-        { id: 106, name: "Buah" },
-        { id: 107, name: "Daging" },
-        { id: 108, name: "Ikan" },
-        { id: 109, name: "Susu" },
-        { id: 110, name: "Telur" },
-        { id: 111, name: "Roti" },
-        { id: 112, name: "Kue" },
-      ],
+      kategoriInput: "",
+      categories: [],
       currentPage: 1,
       rowsPerPage: 5,
+      searchQuery: "",
     };
   },
   computed: {
+    filteredCategories() {
+      if (!Array.isArray(this.categories)) {
+        return [];
+      }
+
+      if (!this.searchQuery) return this.categories;
+
+      return this.categories.filter((cat) =>
+        cat.nama_category.toLowerCase().includes(this.searchQuery.toLowerCase())
+      );
+    },
     paginatedCategories() {
       const startIndex = (this.currentPage - 1) * this.rowsPerPage;
       const endIndex = startIndex + this.rowsPerPage;
-      return this.categories.slice(startIndex, endIndex);
+
+      return Array.isArray(this.filteredCategories)
+        ? this.filteredCategories.slice(startIndex, endIndex)
+        : [];
     },
     totalPages() {
-      return Math.ceil(this.categories.length / this.rowsPerPage);
+      return Math.ceil(this.filteredCategories.length / this.rowsPerPage);
     },
   },
+  mounted() {
+    this.fetchCategories();
+  },
   methods: {
+    async fetchCategories() {
+      try {
+        const token = localStorage.getItem("accessToken");
+        const response = await axios.get("http://localhost:3000/category", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        this.categories = response.data.data.category.rows;
+      } catch (error) {
+        console.error("Gagal mengambil data kategori:", error);
+      }
+    },
+    async addOrUpdateKategori() {
+      try {
+        const token = localStorage.getItem("accessToken");
+        if (!token) {
+          throw new Error("Token tidak ditemukan");
+        }
+
+        const headers = {
+          Authorization: `Bearer ${token}`,
+        };
+
+        let response;
+        if (this.editIndex !== null) {
+          const id = this.categories[this.editIndex].id_category;
+          response = await axios.put(
+            `http://localhost:3000/category/${id}`,
+            {
+              nama_category: this.kategoriInput,
+            },
+            { headers }
+          );
+          Swal.fire("Berhasil", "Data kategori berhasil diperbarui", "success"); // SweetAlert2 for update success
+        } else {
+          response = await axios.post(
+            "http://localhost:3000/category",
+            {
+              nama_category: this.kategoriInput,
+            },
+            { headers }
+          );
+          Swal.fire("Berhasil", "Data kategori berhasil disimpan", "success"); // SweetAlert2 for add success
+        }
+
+        this.fetchCategories();
+        this.closeModal();
+      } catch (error) {
+        console.error("Gagal menyimpan atau mengupdate kategori:", error);
+        if (error.response) {
+          console.error("Response error:", error.response.data);
+        }
+        Swal.fire("Gagal", "Terjadi kesalahan saat menyimpan data", "error"); // SweetAlert2 for error
+      }
+    },
+
+    async deleteCategory(id) {
+  try {
+    // Tampilkan konfirmasi SweetAlert2 sebelum menghapus
+    const result = await Swal.fire({
+      title: "Konfirmasi",
+      text: "Apakah Anda yakin ingin menghapus kategori ini?",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonText: "Ya, Hapus",
+      cancelButtonText: "Batal",
+      reverseButtons: true, // Membalik posisi tombol
+    });
+
+    // Jika pengguna mengklik "Ya, Hapus"
+    if (result.isConfirmed) {
+      const token = localStorage.getItem("accessToken");
+      await axios.delete(`http://localhost:3000/category/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      Swal.fire("Berhasil", "Data kategori berhasil dihapus", "success"); // SweetAlert2 for delete success
+      this.fetchCategories();
+    } else {
+      // Jika pengguna mengklik "Batal"
+      Swal.fire("Dibatalkan", "Penghapusan kategori dibatalkan", "info"); // SweetAlert2 for cancel action
+    }
+  } catch (error) {
+    console.error("Gagal menghapus kategori:", error);
+    Swal.fire("Gagal", "Terjadi kesalahan saat menghapus kategori", "error"); // SweetAlert2 for delete error
+  }
+},
+    editCategory(index) {
+      const kategori = this.paginatedCategories[index];
+      this.kategoriInput = kategori.nama_category;
+      const originalIndex = this.categories.findIndex(
+        (cat) => cat.id_category === kategori.id_category
+      );
+      this.editIndex = originalIndex;
+      this.showModal = true;
+    },
     closeModal() {
       this.showModal = false;
       this.resetForm();
+    },
+    resetForm() {
+      this.kategoriInput = "";
+      this.editIndex = null;
     },
   },
 };
@@ -336,11 +455,11 @@ export default {
   background-color: white;
 }
 
-.btn-add-bengkel{
+.btn-add-bengkel {
   background-color: #007bff;
 }
 
-.btn-add-bengkel:hover{
+.btn-add-bengkel:hover {
   background-color: #035cba;
   transform: translateY(-2px);
 }
@@ -367,6 +486,5 @@ export default {
   .search-bar-container {
     font-size: 12px;
   }
-  
 }
 </style>
