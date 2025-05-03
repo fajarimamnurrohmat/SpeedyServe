@@ -1,5 +1,5 @@
 <template>
-  <div class="container_all border border-2 p-3">
+  <div class="container_all ">
     <h2 class="name_menu">Data Menu Makanan & Minuman</h2>
     <button @click="showModal = true" class="btn_add_menu">
       <i class="fas fa-plus"></i> Tambah Menu
@@ -8,57 +8,50 @@
     <!-- Modal -->
     <div v-if="showModal" class="modal-overlay" @click.self="closeModal">
       <div class="modal-content">
-        <span
-          class="close-modal"
-          @click="closeModal"
-          style="color: red; text-align: right"
-          >&times;
+        <span class="close-modal" @click="closeModal" style="color: red; text-align: right">
+          &times;
         </span>
         <h4 class="header-modal">
           {{ editIndex !== null ? "Edit Data Menu" : "Input Data Menu" }}
         </h4>
+
         <div class="form-row">
           <div class="form-group">
             <label for="name_menu">Nama Menu</label>
             <p>Masukkan nama Menu</p>
-            <input type="text" id="name_menu" class="form-controll" />
+            <input type="text" id="name_menu" class="form-controll" v-model="productName" />
           </div>
           <div class="form-group">
             <label for="kategori">Kategori</label>
             <p>Pilih nama Kategori</p>
-            <select
-              id="kategori"
-              class="form-control"
-              :disabled="isEditMode"
-            >
+            <select id="kategori" class="form-control" v-model="selectedCategory">
               <option disabled value="">Pilih kategori</option>
-              <option
-                v-for="kategori in paginatedKategori"
-                
-              >
-                {{ kategori.nama }}
+              <option v-for="item in kategori" :key="item.id_category" :value="item.id_category">
+                {{ item.nama_category }}
               </option>
             </select>
           </div>
         </div>
+
         <div class="form-row">
           <div class="form-group">
             <label for="Harga">Harga</label>
             <p>Masukkan Harga Menu</p>
-            <input type="number" id="Harga" class="form-controll" />
+            <input type="number" id="Harga" class="form-controll" v-model="productPrice" />
           </div>
         </div>
+
         <div style="margin-top: 10px; text-align: left">
-          <button @click="addOrUpdateBengkel" class="btn-add-bengkel">
+          <button @click="editIndex !== null ? updateProduct() : addProduct()" class="btn-add-bengkel">
             {{ editIndex !== null ? "Update Data" : "Simpan Data" }}
           </button>
         </div>
       </div>
     </div>
     <!-- End of Modal -->
-    <hr
-      style="border: 1px solid black; margin-top: 25px; margin-bottom: 25px"
-    />
+
+    <hr style="border: 1px solid black; margin-top: 25px; margin-bottom: 25px" />
+
     <div class="info-page">
       <div class="tampil-baris" style="text-align: left">
         Tampilkan:
@@ -70,14 +63,10 @@
         </select>
         baris
       </div>
+
       <div class="search-bar-container">
         <i class="fas fa-search search-icon"></i>
-        <input
-          type="text"
-          v-model="searchQuery"
-          class="search-input"
-          placeholder="Cari data..."
-        />
+        <input type="text" v-model="searchQuery" class="search-input" placeholder="Cari data..." />
       </div>
     </div>
 
@@ -93,19 +82,14 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(product, index) in paginatedProducts" :key="index">
-            <td>{{ product.id }}</td>
-            <td>{{ product.name }}</td>
-            <td>{{ product.category }}</td>
-            <td>{{ product.price }}</td>
+          <tr v-for="(product, index) in paginatedProducts" :key="product.id_menu">
+            <td>{{ product.id_menu }}</td>
+            <td>{{ product.nama_menu }}</td>
+            <td>{{ product.nama_category }}</td>
+            <td>{{ product.harga_menu }}</td>
             <td>
-              <button
-                class="btn_action btn_delete"
-                @click="deleteProduct(index)"
-              >
-                Hapus
-              </button>
-              <button class="btn_action btn_edit">Edit</button>
+              <button class="btn_action btn_delete" @click="deleteProduct(product.id_menu)">Hapus</button>
+              <button class="btn_action btn_edit" @click="editProduct(index, product)">Edit</button>
             </td>
           </tr>
         </tbody>
@@ -115,45 +99,32 @@
 </template>
 
 <script>
+import axios from "axios";
+import Swal from "sweetalert2";
+
 export default {
   data() {
     return {
       showModal: false,
       editIndex: null,
-      products: [
-        { id: 1, name: "Nasi Goreng", category: "makanan", price: 13000 },
-        { id: 2, name: "Es teh", category: "minuman", price: 4000 },
-        { id: 3, name: "Nasi Mawut", category: "makanan", price: 13000 },
-        { id: 4, name: "Es Jeruk", category: "minuman", price: 4000 },
-        { id: 5, name: "Mie Goreng", category: "makanan", price: 13000 },
-        { id: 7, name: "Bakso", category: "makanan", price: 18000 },
-        { id: 8, name: "Es Kelapa Muda", category: "minuman", price: 12000 },
-        { id: 9, name: "Soto Ayam", category: "makanan", price: 22000 },
-        { id: 10, name: "Es Cincau", category: "minuman", price: 9000 },
-      ],
-      kategori: [
-        {nama: "makanan"},
-        {nama: "minuman"},
-        {nama: "camilan"},
-      ],
+      products: [],
+      kategori: [],
       productName: "",
       productPrice: "",
-      selectedCategory: "makanan",
+      selectedCategory: "",
       currentPage: 1,
       rowsPerPage: 5,
-      productIdCounter: 1,
+      searchQuery: "",
     };
   },
   computed: {
     paginatedProducts() {
+      const filtered = this.products.filter((item) =>
+        item.nama_menu.toLowerCase().includes(this.searchQuery.toLowerCase())
+      );
       const startIndex = (this.currentPage - 1) * this.rowsPerPage;
       const endIndex = startIndex + this.rowsPerPage;
-      return this.products.slice(startIndex, endIndex);
-    },
-    paginatedKategori() {
-      const startIndex = (this.currentPage - 1) * this.rowsPerPage;
-      const endIndex = startIndex + this.rowsPerPage;
-      return this.kategori.slice(startIndex, endIndex);
+      return filtered.slice(startIndex, endIndex);
     },
     totalPages() {
       return Math.ceil(this.products.length / this.rowsPerPage);
@@ -164,9 +135,126 @@ export default {
       this.showModal = false;
       this.resetForm();
     },
-    deleteProduct(index) {
-      this.products.splice(index, 1);
+    resetForm() {
+      this.productName = "";
+      this.productPrice = "";
+      this.selectedCategory = "";
+      this.editIndex = null;
     },
+    async fetchMenu() {
+      try {
+        const token = localStorage.getItem("accessToken");
+        const response = await axios.get("http://localhost:3000/menu", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        this.products = response.data.data.menu;
+      } catch (error) {
+        console.error("Gagal mengambil data menu:", error);
+      }
+    },
+    async fetchKategori() {
+      try {
+        const token = localStorage.getItem("accessToken");
+        const response = await axios.get("http://localhost:3000/category", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        this.kategori = response.data.data.category.rows;
+      } catch (error) {
+        console.error("Gagal mengambil data kategori:", error);
+      }
+    },
+    async addProduct() {
+      if (!this.productName || !this.productPrice || !this.selectedCategory) {
+        Swal.fire("Gagal", "Harap lengkapi semua field!", "warning");
+        return;
+      }
+      try {
+        const token = localStorage.getItem("accessToken");
+        await axios.post(
+          "http://localhost:3000/menu",
+          {
+            id_category: this.selectedCategory,
+            nama_menu: this.productName,
+            harga_menu: this.productPrice,
+          },
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        this.fetchMenu();
+        this.closeModal();
+        Swal.fire("Berhasil!", "Menu berhasil ditambahkan.", "success");
+      } catch (error) {
+        console.error("Gagal menambahkan menu:", error);
+        Swal.fire("Gagal", "Gagal menambahkan menu!", "error");
+      }
+    },
+    async editProduct(index, product) {
+      this.editIndex = index;
+      this.productName = product.nama_menu;
+      this.productPrice = product.harga_menu;
+      this.selectedCategory = product.id_category;
+      this.showModal = true;
+    },
+    async updateProduct() {
+      if (!this.productName || !this.productPrice || !this.selectedCategory) {
+        Swal.fire("Gagal", "Harap lengkapi semua field!", "warning");
+        return;
+      }
+      try {
+        const token = localStorage.getItem("accessToken");
+        const product = this.products[this.editIndex];
+        await axios.put(
+          `http://localhost:3000/menu/${product.id_menu}`,
+          {
+            id_category: this.selectedCategory,
+            nama_menu: this.productName,
+            harga_menu: this.productPrice,
+          },
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        this.fetchMenu();
+        this.closeModal();
+        Swal.fire("Berhasil!", "Menu berhasil diperbarui.", "success");
+      } catch (error) {
+        console.error("Gagal mengupdate menu:", error);
+        Swal.fire("Gagal", "Gagal mengupdate menu!", "error");
+      }
+    },
+    async deleteProduct(id_menu) {
+      const result = await Swal.fire({
+        title: "Yakin ingin menghapus menu ini?",
+        text: "Data yang dihapus tidak bisa dikembalikan!",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#d33",
+        cancelButtonColor: "#3085d6",
+        confirmButtonText: "Ya, hapus!",
+        cancelButtonText: "Batal",
+      });
+
+      if (!result.isConfirmed) return;
+
+      try {
+        const token = localStorage.getItem("accessToken");
+        await axios.delete(`http://localhost:3000/menu/${id_menu}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        this.fetchMenu();
+        Swal.fire("Terhapus!", "Menu berhasil dihapus.", "success");
+      } catch (error) {
+        console.error("Gagal menghapus menu:", error);
+        Swal.fire("Gagal", "Gagal menghapus menu!", "error");
+      }
+    },
+  },
+  mounted() {
+    this.fetchMenu();
+    this.fetchKategori();
   },
 };
 </script>
@@ -174,7 +262,6 @@ export default {
 <style scoped>
 .container_all {
   padding: 20px;
-  border: 2px solid #000;
   margin-top: 50px;
 }
 
