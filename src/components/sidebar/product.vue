@@ -17,11 +17,6 @@
 
         <div class="form-row">
           <div class="form-group">
-            <label for="name_menu">Nama Menu</label>
-            <p>Masukkan nama Menu</p>
-            <input type="text" id="name_menu" class="form-controll" v-model="productName" />
-          </div>
-          <div class="form-group">
             <label for="kategori">Kategori</label>
             <p>Pilih nama Kategori</p>
             <select id="kategori" class="form-control" v-model="selectedCategory">
@@ -30,6 +25,11 @@
                 {{ item.nama_category }}
               </option>
             </select>
+          </div>
+          <div class="form-group">
+            <label for="name_menu">Nama Menu</label>
+            <p>Masukkan nama Menu</p>
+            <input type="text" id="name_menu" class="form-controll" v-model="productName" />
           </div>
         </div>
 
