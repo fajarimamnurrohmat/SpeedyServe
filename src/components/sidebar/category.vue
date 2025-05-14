@@ -64,8 +64,8 @@
     </div>
 
     <div class="table-responsive">
-      <table class="table table-striped mt-4">
-        <thead>
+      <table class="table table-striped table-bordered mt-4">
+        <thead class="table-head">
           <tr>
             <th scope="col">Id</th>
             <th scope="col">Nama Kategori</th>
@@ -310,8 +310,12 @@ export default {
 }
 
 .table th {
-  background-color: #f4f4f4;
   font-weight: bold;
+}
+
+.table-head {
+  background: linear-gradient(135deg, #318407, #0b1e02);
+  color: white;
 }
 
 .table tbody tr:nth-child(even) {

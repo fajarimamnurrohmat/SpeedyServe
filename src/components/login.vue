@@ -94,7 +94,7 @@ export default {
           localStorage.setItem("refreshToken", refreshToken);
 
           // Redirect ke halaman utama
-          this.$router.push("/mainsidebar/order");
+          this.$router.push("/mainsidebar/dashboard");
         } else {
           this.errorMessage = response.data.message || "Login gagal.";
         }

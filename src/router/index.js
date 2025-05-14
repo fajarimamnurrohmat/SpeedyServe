@@ -9,6 +9,7 @@ import Product from "../components/sidebar/product.vue";
 import Order from "../components/sidebar/order.vue";
 import Detailorder from "../components/sidebar/detail_order.vue";
 import Transaksi from "../components/sidebar/transaksi.vue";
+import Dashboard from "../components/sidebar/dashboard.vue"
 
 // Flag agar interval token tidak dijalankan berulang
 let tokenRefreshStarted = false;
@@ -73,6 +74,10 @@ const routes = [
       }
     },
     children: [
+      {
+        path: "dashboard",
+        component: Dashboard,
+      },
       {
         path: "order",
         component: Order,

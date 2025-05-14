@@ -19,7 +19,7 @@
     <nav id="sidebarMenu" :class="{ show: sidebarOpen }" class="sidebar">
       <div class="sidebar-content">
         <router-link
-          to="/mainsidebar/order"
+          to="/mainsidebar/dashboard"
           class="sidebar-item"
           @click="closeSidebar"
         >
