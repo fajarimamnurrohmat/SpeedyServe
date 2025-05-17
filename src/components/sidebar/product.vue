@@ -1,5 +1,5 @@
 <template>
-  <div class="container_all ">
+  <div class="container_all">
     <h2 class="name_menu">Data Menu Makanan & Minuman</h2>
     <button @click="showModal = true" class="btn_add_menu">
       <i class="fas fa-plus"></i> Tambah Menu
@@ -74,7 +74,7 @@
       <table class="table table-striped table-bordered mt-4">
         <thead class="table-head">
           <tr>
-            <th scope="col">Id</th>
+            <th scope="col">No</th>
             <th scope="col">Nama Menu</th>
             <th scope="col">Kategori</th>
             <th scope="col">Harga</th>
@@ -83,7 +83,7 @@
         </thead>
         <tbody>
           <tr v-for="(product, index) in paginatedProducts" :key="product.id_menu">
-            <td>{{ product.id_menu }}</td>
+            <td>{{ (currentPage - 1) * rowsPerPage + index + 1 }}</td>
             <td>{{ product.nama_menu }}</td>
             <td>{{ product.nama_category }}</td>
             <td>{{ product.harga_menu }}</td>
@@ -147,7 +147,8 @@ export default {
         const response = await axios.get("http://localhost:3000/menu", {
           headers: { Authorization: `Bearer ${token}` },
         });
-        this.products = response.data.data.menu;
+        // Urutkan berdasarkan input awal (asumsi data awal lebih dahulu berada di array awal)
+        this.products = response.data.data.menu.reverse();
       } catch (error) {
         console.error("Gagal mengambil data menu:", error);
       }
@@ -258,6 +259,7 @@ export default {
   },
 };
 </script>
+
 
 <style scoped>
 .container_all {

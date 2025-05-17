@@ -8,11 +8,7 @@
     <!-- Modal -->
     <div v-if="showModal" class="modal-overlay" @click.self="closeModal">
       <div class="modal-content">
-        <span
-          class="close-modal"
-          @click="closeModal"
-          style="color: red; text-align: right"
-        >
+        <span class="close-modal" @click="closeModal" style="color: red; text-align: right">
           &times;
         </span>
         <h4 class="header-modal">
@@ -67,20 +63,29 @@
       <table class="table table-striped table-bordered mt-4">
         <thead class="table-head">
           <tr>
-            <th scope="col">Id</th>
+            <th scope="col">No</th>
             <th scope="col">Nama Kategori</th>
             <th scope="col">Action</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(category, index) in paginatedCategories" :key="category.id_category">
-            <td>{{ category.id_category }}</td>
+          <tr
+            v-for="(category, index) in paginatedCategories"
+            :key="category.id_category"
+          >
+            <td>{{ (currentPage - 1) * rowsPerPage + index + 1 }}</td>
             <td>{{ category.nama_category }}</td>
             <td>
-              <button class="btn_action btn_delete" @click="deleteCategory(category.id_category)">
+              <button
+                class="btn_action btn_delete"
+                @click="deleteCategory(category.id_category)"
+              >
                 Hapus
               </button>
-              <button class="btn_action btn_edit" @click="editCategory(index)">
+              <button
+                class="btn_action btn_edit"
+                @click="editCategory(category.id_category)"
+              >
                 Edit
               </button>
             </td>
@@ -93,7 +98,7 @@
 
 <script>
 import axios from "axios";
-import Swal from "sweetalert2"; // Import SweetAlert2
+import Swal from "sweetalert2";
 
 export default {
   data() {
@@ -109,23 +114,24 @@ export default {
   },
   computed: {
     filteredCategories() {
-      if (!Array.isArray(this.categories)) {
-        return [];
+      if (!Array.isArray(this.categories)) return [];
+
+      let filtered = this.categories;
+
+      if (this.searchQuery) {
+        filtered = filtered.filter((cat) =>
+          cat.nama_category.toLowerCase().includes(this.searchQuery.toLowerCase())
+        );
       }
 
-      if (!this.searchQuery) return this.categories;
-
-      return this.categories.filter((cat) =>
-        cat.nama_category.toLowerCase().includes(this.searchQuery.toLowerCase())
-      );
+      return filtered;
     },
     paginatedCategories() {
-      const startIndex = (this.currentPage - 1) * this.rowsPerPage;
-      const endIndex = startIndex + this.rowsPerPage;
-
-      return Array.isArray(this.filteredCategories)
-        ? this.filteredCategories.slice(startIndex, endIndex)
-        : [];
+      const sorted = [...this.filteredCategories].sort(
+        (a, b) => a.id_category - b.id_category
+      );
+      const start = (this.currentPage - 1) * this.rowsPerPage;
+      return sorted.slice(start, start + this.rowsPerPage);
     },
     totalPages() {
       return Math.ceil(this.filteredCategories.length / this.rowsPerPage);
@@ -148,95 +154,72 @@ export default {
         console.error("Gagal mengambil data kategori:", error);
       }
     },
+
     async addOrUpdateKategori() {
       try {
         const token = localStorage.getItem("accessToken");
-        if (!token) {
-          throw new Error("Token tidak ditemukan");
-        }
+        const headers = { Authorization: `Bearer ${token}` };
 
-        const headers = {
-          Authorization: `Bearer ${token}`,
-        };
-
-        let response;
         if (this.editIndex !== null) {
           const id = this.categories[this.editIndex].id_category;
-          response = await axios.put(
-            `http://localhost:3000/category/${id}`,
-            {
-              nama_category: this.kategoriInput,
-            },
-            { headers }
-          );
-          Swal.fire("Berhasil", "Data kategori berhasil diperbarui", "success"); // SweetAlert2 for update success
+          await axios.put(`http://localhost:3000/category/${id}`, {
+            nama_category: this.kategoriInput,
+          }, { headers });
+          Swal.fire("Berhasil", "Data kategori berhasil diperbarui", "success");
         } else {
-          response = await axios.post(
-            "http://localhost:3000/category",
-            {
-              nama_category: this.kategoriInput,
-            },
-            { headers }
-          );
-          Swal.fire("Berhasil", "Data kategori berhasil disimpan", "success"); // SweetAlert2 for add success
+          await axios.post("http://localhost:3000/category", {
+            nama_category: this.kategoriInput,
+          }, { headers });
+          Swal.fire("Berhasil", "Data kategori berhasil disimpan", "success");
         }
 
         this.fetchCategories();
         this.closeModal();
       } catch (error) {
         console.error("Gagal menyimpan atau mengupdate kategori:", error);
-        if (error.response) {
-          console.error("Response error:", error.response.data);
-        }
-        Swal.fire("Gagal", "Terjadi kesalahan saat menyimpan data", "error"); // SweetAlert2 for error
+        Swal.fire("Gagal", "Terjadi kesalahan saat menyimpan data", "error");
       }
     },
 
     async deleteCategory(id) {
-  try {
-    // Tampilkan konfirmasi SweetAlert2 sebelum menghapus
-    const result = await Swal.fire({
-      title: "Konfirmasi",
-      text: "Apakah Anda yakin ingin menghapus kategori ini?",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonText: "Ya, Hapus",
-      cancelButtonText: "Batal",
-      reverseButtons: true, // Membalik posisi tombol
-    });
-
-    // Jika pengguna mengklik "Ya, Hapus"
-    if (result.isConfirmed) {
-      const token = localStorage.getItem("accessToken");
-      await axios.delete(`http://localhost:3000/category/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
+      const confirm = await Swal.fire({
+        title: "Konfirmasi",
+        text: "Apakah Anda yakin ingin menghapus kategori ini?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Ya, Hapus",
+        cancelButtonText: "Batal",
       });
-      Swal.fire("Berhasil", "Data kategori berhasil dihapus", "success"); // SweetAlert2 for delete success
-      this.fetchCategories();
-    } else {
-      // Jika pengguna mengklik "Batal"
-      Swal.fire("Dibatalkan", "Penghapusan kategori dibatalkan", "info"); // SweetAlert2 for cancel action
-    }
-  } catch (error) {
-    console.error("Gagal menghapus kategori:", error);
-    Swal.fire("Gagal", "Terjadi kesalahan saat menghapus kategori", "error"); // SweetAlert2 for delete error
-  }
-},
-    editCategory(index) {
-      const kategori = this.paginatedCategories[index];
-      this.kategoriInput = kategori.nama_category;
-      const originalIndex = this.categories.findIndex(
-        (cat) => cat.id_category === kategori.id_category
-      );
-      this.editIndex = originalIndex;
-      this.showModal = true;
+
+      if (confirm.isConfirmed) {
+        try {
+          const token = localStorage.getItem("accessToken");
+          await axios.delete(`http://localhost:3000/category/${id}`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          Swal.fire("Berhasil", "Data kategori berhasil dihapus", "success");
+          this.fetchCategories();
+        } catch (error) {
+          console.error("Gagal menghapus kategori:", error);
+          Swal.fire("Gagal", "Terjadi kesalahan saat menghapus", "error");
+        }
+      }
     },
+
+    editCategory(id) {
+      const index = this.categories.findIndex(cat => cat.id_category === id);
+      if (index !== -1) {
+        this.kategoriInput = this.categories[index].nama_category;
+        this.editIndex = index;
+        this.showModal = true;
+      }
+    },
+
     closeModal() {
       this.showModal = false;
       this.resetForm();
     },
+
     resetForm() {
       this.kategoriInput = "";
       this.editIndex = null;

@@ -1,6 +1,6 @@
 <template>
   <div class="container mt-4">
-    <h2 class="mb-4">Halaman Penjualan / Transaksi</h2>
+    <h2 class="name-transaksi mb-4">Halaman Penjualan / Transaksi</h2>
 
     <!-- Filter -->
     <div class="row mb-3">
@@ -47,7 +47,7 @@
       <table class="table table-bordered table-striped">
         <thead class="table-head">
           <tr>
-            <th>ID Transaksi</th>
+            <th>No.</th>
             <th>Nama Pemesan</th>
             <th>Tanggal</th>
             <th>Jam</th>
@@ -56,8 +56,8 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="tx in filteredTransactions" :key="tx.id_transaksi">
-            <td>{{ tx.id_transaksi }}</td>
+          <tr v-for="(tx, index) in filteredTransactions" :key="tx.id_transaksi">
+            <td>{{ index + 1 }}</td>
             <td>{{ tx.nama_pemesan }}</td>
             <td>{{ formatDate(tx.waktu) }}</td>
             <td>{{ formatTime(tx.waktu) }}</td>
@@ -238,7 +238,6 @@ export default {
     },
     async openDetailModal(id_order) {
       try {
-        console.log("Membuka detail modal untuk ID Order:", id_order);
         const token = localStorage.getItem("accessToken");
         const response = await axios.get(
           `http://localhost:3000/order/${id_order}`,
@@ -249,11 +248,9 @@ export default {
           }
         );
 
-        console.log("Response dari API:", response.data); // Memastikan response sudah sesuai
-
         if (response.data.status === "success" && response.data.data.order) {
-          this.orderDetail = response.data.data.order; // Menyimpan data order ke dalam orderDetail
-          this.showModal = true; // Menampilkan modal setelah data diterima
+          this.orderDetail = response.data.data.order;
+          this.showModal = true;
         } else {
           alert("Data order tidak ditemukan.");
         }
@@ -264,7 +261,7 @@ export default {
     },
     closeModal() {
       this.showModal = false;
-      this.orderDetail = null; // Mengosongkan data saat modal ditutup
+      this.orderDetail = null;
     },
   },
   mounted() {
@@ -274,6 +271,12 @@ export default {
 </script>
 
 <style scoped>
+.name-transaksi {
+  font-family: "Poppins", sans-serif;
+  margin-bottom: 20px;
+  text-align: left;
+  font-weight: bold;
+}
 .container {
   max-width: 1000px;
 }

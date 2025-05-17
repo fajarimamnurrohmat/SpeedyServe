@@ -89,9 +89,11 @@ export default {
         });
 
         if (response.data.status === "success") {
-          const { accessToken, refreshToken } = response.data.data;
+          const { accessToken, refreshToken, user } = response.data.data;
+
           localStorage.setItem("accessToken", accessToken);
           localStorage.setItem("refreshToken", refreshToken);
+          localStorage.setItem("userLevel", user.level);  // Simpan level user
 
           // Redirect ke halaman utama
           this.$router.push("/mainsidebar/dashboard");
