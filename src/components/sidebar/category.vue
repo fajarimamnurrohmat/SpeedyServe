@@ -1,6 +1,6 @@
 <template>
-  <div class="container">
-    <h2 class="name_category">Data Kategori</h2>
+  <div v-if="level === 3" class="container">
+    <h2 class="name_category" style="color: green;">Data Kategori</h2>
     <button @click="showModal = true" class="btn_add_category">
       <i class="fas fa-plus"></i> Tambah kategori
     </button>
@@ -65,7 +65,7 @@
           <tr>
             <th scope="col">No</th>
             <th scope="col">Nama Kategori</th>
-            <th scope="col">Action</th>
+            <th scope="col">Aksi</th>
           </tr>
         </thead>
         <tbody>
@@ -110,6 +110,7 @@ export default {
       currentPage: 1,
       rowsPerPage: 5,
       searchQuery: "",
+      level:null,
     };
   },
   computed: {
@@ -139,6 +140,8 @@ export default {
   },
   mounted() {
     this.fetchCategories();
+    const savedLevel = localStorage.getItem("userLevel");
+    if (savedLevel) this.level = parseInt(savedLevel);
   },
   methods: {
     async fetchCategories() {

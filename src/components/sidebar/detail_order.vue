@@ -1,6 +1,6 @@
 <template>
   <div class="container_all">
-    <h2 class="name_order">Daftar Pesanan</h2>
+    <h2 class="name_order" style="color: green;">Daftar Pesanan</h2>
 
     <div class="d-flex justify-content-between mb-3">
       <div class="table_controls">
@@ -29,9 +29,9 @@
           <tr>
             <th scope="col">No</th>
             <th scope="col">Nama Pemesan</th>
-            <th scope="col">Meja/T.away</th>
+            <th scope="col">Opsi Pesanan</th>
             <th scope="col">Total</th>
-            <th scope="col">Action</th>
+            <th scope="col">Aksi</th>
             <th scope="col">Waktu</th>
             <th scope="col">Status</th>
           </tr>
@@ -41,7 +41,7 @@
             <td>{{ (currentPage - 1) * rowsPerPage + index + 1 }}</td>
             <td>{{ order.nama_pemesan }}</td>
             <td>{{ order.opsi_pesanan }}</td>
-            <td>Rp{{ order.total_harga }}</td>
+            <td>Rp{{ order.total_harga.toLocaleString("id-ID", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</td>
             <td>
               <button class="btn btn-warning btn-sm" @click="showDetail(order)">Detail</button>
             </td>

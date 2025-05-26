@@ -1,6 +1,6 @@
 <template>
   <div class="container_all">
-    <h2 class="name_menu">Data Menu Makanan & Minuman</h2>
+    <h2 class="name_menu" style="color: green;">Data Menu Makanan & Minuman</h2>
     <button @click="showModal = true" class="btn_add_menu">
       <i class="fas fa-plus"></i> Tambah Menu
     </button>
@@ -78,7 +78,7 @@
             <th scope="col">Nama Menu</th>
             <th scope="col">Kategori</th>
             <th scope="col">Harga</th>
-            <th scope="col">Action</th>
+            <th scope="col">Aksi</th>
           </tr>
         </thead>
         <tbody>
@@ -86,7 +86,7 @@
             <td>{{ (currentPage - 1) * rowsPerPage + index + 1 }}</td>
             <td>{{ product.nama_menu }}</td>
             <td>{{ product.nama_category }}</td>
-            <td>{{ product.harga_menu }}</td>
+            <td>Rp{{ Number(product.harga_menu).toLocaleString("id-ID", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</td>
             <td>
               <button class="btn_action btn_delete" @click="deleteProduct(product.id_menu)">Hapus</button>
               <button class="btn_action btn_edit" @click="editProduct(index, product)">Edit</button>

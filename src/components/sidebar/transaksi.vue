@@ -1,6 +1,10 @@
 <template>
-  <div class="container mt-4">
-    <h2 class="name-transaksi mb-4">Halaman Penjualan / Transaksi</h2>
+  <div v-if="level === 1 | level === 2">
+    <h2 style="color: red;">maaf bukan hak akses anda untuk halaman ini !</h2>
+    <h5>silahkan keluar & masuk sebagai admin untuk bisa masuk ke halaman ini</h5>
+  </div>
+  <div class="container mt-4" v-if="level === 3">
+    <h2 class="name-transaksi mb-4" style="color:green">Halaman Penjualan / Transaksi</h2>
 
     <!-- Filter -->
     <div class="row mb-3">
@@ -52,7 +56,7 @@
             <th>Tanggal</th>
             <th>Jam</th>
             <th>Total Harga</th>
-            <th>Action</th>
+            <th>Aksi</th>
           </tr>
         </thead>
         <tbody>
@@ -157,6 +161,7 @@ export default {
       selectedMonth: "",
       showModal: false,
       orderDetail: null,
+      level:null,
       months: [
         "Januari",
         "Februari",
@@ -203,8 +208,7 @@ export default {
         });
         this.transactions = response.data.data.transactions;
       } catch (error) {
-        console.error("Gagal mengambil data transaksi:", error);
-        alert("Gagal mengambil data transaksi.");
+        //console.error("Gagal mengambil data transaksi:", error);
       }
     },
     formatDate(dateStr) {
@@ -266,6 +270,8 @@ export default {
   },
   mounted() {
     this.fetchTransactions();
+    const savedLevel = localStorage.getItem("userLevel");
+    if (savedLevel) this.level = parseInt(savedLevel);
   },
 };
 </script>
