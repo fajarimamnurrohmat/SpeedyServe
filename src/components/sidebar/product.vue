@@ -1,5 +1,11 @@
 <template>
-  <div class="container_all">
+  <div v-if="(level === 1) | (level === 2)">
+    <h2 style="color: red">maaf bukan hak akses anda untuk halaman ini !</h2>
+    <p>
+      silahkan keluar & masuk sebagai admin untuk bisa masuk ke halaman ini
+    </p>
+  </div>
+  <div class="container_all" v-if="level === 3">
     <h2 class="name_menu" style="color: green;">Data Menu Makanan & Minuman</h2>
     <button @click="showModal = true" class="btn_add_menu">
       <i class="fas fa-plus"></i> Tambah Menu
@@ -115,6 +121,7 @@ export default {
       currentPage: 1,
       rowsPerPage: 5,
       searchQuery: "",
+      level:null,
     };
   },
   computed: {
@@ -256,6 +263,8 @@ export default {
   mounted() {
     this.fetchMenu();
     this.fetchKategori();
+    const savedLevel = localStorage.getItem("userLevel");
+    if (savedLevel) this.level = parseInt(savedLevel);
   },
 };
 </script>

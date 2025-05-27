@@ -1,4 +1,10 @@
 <template>
+  <div v-if="(level === 1) | (level === 2)">
+    <h2 style="color: red">maaf bukan hak akses anda untuk halaman ini !</h2>
+    <p>
+      silahkan keluar & masuk sebagai admin untuk bisa masuk ke halaman ini
+    </p>
+  </div>
   <div v-if="level === 3" class="container">
     <h2 class="name_category" style="color: green;">Data Kategori</h2>
     <button @click="showModal = true" class="btn_add_category">

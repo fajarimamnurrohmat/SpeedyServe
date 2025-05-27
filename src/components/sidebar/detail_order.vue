@@ -86,19 +86,39 @@
       tabindex="-1"
       style="background: rgba(0, 0, 0, 0.5)"
     >
-      <div class="modal-dialog modal-lg">
+      <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
             <h5 class="modal-title">Detail Pesanan - {{ selectedOrder.nama_pemesan }}</h5>
             <button type="button" class="btn-close" @click="selectedOrder = null"></button>
           </div>
           <div class="modal-body">
-            <p><strong>No HP:</strong> {{ selectedOrder.no_hp }}</p>
-            <p><strong>Opsi Pesanan:</strong> {{ selectedOrder.opsi_pesanan }}</p>
-            <p><strong>Total Harga:</strong> Rp{{ selectedOrder.total_harga }}</p>
-            <p><strong>Jumlah Bayar:</strong> Rp{{ selectedOrder.jumlah_bayar }}</p>
-            <p><strong>Kembalian:</strong> Rp{{ selectedOrder.kembalian }}</p>
-            <p><strong>Keterangan:</strong> {{ selectedOrder.keterangan }}</p>
+            <div class="order-details-grid">
+              <div class="detail-item">
+                <strong>No HP:</strong>
+                <span>{{ selectedOrder.no_hp }}</span>
+              </div>
+              <div class="detail-item">
+                <strong>Opsi Pesanan:</strong>
+                <span>{{ selectedOrder.opsi_pesanan }}</span>
+              </div>
+              <div class="detail-item">
+                <strong>Total Harga:</strong>
+                <span>Rp{{ selectedOrder.total_harga.toLocaleString("id-ID", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</span>
+              </div>
+              <div class="detail-item">
+                <strong>Jumlah Bayar:</strong>
+                <span>Rp{{ selectedOrder.jumlah_bayar.toLocaleString("id-ID", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</span>
+              </div>
+              <div class="detail-item">
+                <strong>Kembalian:</strong>
+                <span>Rp{{ selectedOrder.kembalian.toLocaleString("id-ID", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</span>
+              </div>
+              <div class="detail-item full-width">
+                <strong>Keterangan:</strong>
+                <span>{{ selectedOrder.keterangan }}</span>
+              </div>
+            </div>
 
             <h6 class="mt-3">Detail Menu:</h6>
             <table class="table">
@@ -113,7 +133,7 @@
                 <tr v-for="(item, idx) in selectedOrder.detail_pesanan" :key="idx">
                   <td>{{ item.nama_menu }}</td>
                   <td>{{ item.jumlah }}</td>
-                  <td>Rp{{ item.subtotal }}</td>
+                  <td>Rp{{ item.subtotal.toLocaleString("id-ID", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</td>
                 </tr>
               </tbody>
             </table>
@@ -136,7 +156,7 @@
             </button>
 
             <!-- Tombol hapus untuk semua level -->
-            <button class="btn btn-danger" @click="deleteOrder(selectedOrder.id_order)">Hapus</button>
+            <button v-if="level === 2" class="btn btn-danger" @click="deleteOrder(selectedOrder.id_order)">Hapus</button>
             <button class="btn btn-secondary" @click="selectedOrder = null">Tutup</button>
           </div>
         </div>
@@ -308,6 +328,8 @@ export default {
 </script>
 
 <style scoped>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+
 .name_order {
   font-family: "Poppins", sans-serif;
   margin-bottom: 20px;
@@ -340,7 +362,203 @@ export default {
 .modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.5);
+  background: rgba(0, 0, 0, 0.5);
   z-index: 1040;
+}
+
+.modal-dialog {
+  max-width: 600px;
+  margin: 1.75rem auto;
+}
+
+.modal-content {
+  border: none;
+  border-radius: 20px;
+  background: linear-gradient(145deg, #ffffff, #f8f9fa);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(12px);
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+.modal-content:hover {
+  transform: translateY(-5px);
+}
+
+.modal-header {
+  background: linear-gradient(90deg, #318407, #0b1e02);
+  color: #E6DF1D;
+  border-top-left-radius: 20px;
+  border-top-right-radius: 20px;
+  padding: 15px 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.modal-title {
+  font-family: "Poppins", sans-serif;
+  font-size: 1.4rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.btn-close {
+  background: none;
+  color: #E6DF1D;
+  font-size: 1.2rem;
+  opacity: 0.8;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.btn-close:hover {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+.modal-body {
+  padding: 20px;
+  font-family: "Poppins", sans-serif;
+  color: #333;
+  background: rgba(255, 255, 255, 0.95);
+}
+
+.order-details-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px 20px;
+  margin-bottom: 20px;
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.9rem;
+}
+
+.detail-item.full-width {
+  grid-column: span 2;
+}
+
+.detail-item strong {
+  color: #318407;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.detail-item span {
+  color: #333;
+  line-height: 1.4;
+}
+
+.modal-body h6 {
+  font-family: "Poppins", sans-serif;
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #318407;
+  margin-top: 15px;
+  margin-bottom: 15px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.modal-body .table {
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.modal-body .table thead {
+  background: linear-gradient(90deg, #E6DF1D, #d4cc17);
+  color: #1a1a1a;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.modal-body .table th,
+.modal-body .table td {
+  padding: 10px;
+  font-size: 0.85rem;
+  border: none;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.modal-body .table tbody tr {
+  transition: background 0.2s ease;
+}
+
+.modal-body .table tbody tr:hover {
+  background: rgba(230, 223, 29, 0.15);
+}
+
+.modal-footer {
+  padding: 15px 20px;
+  background: #f8f9fa;
+  border-bottom-left-radius: 20px;
+  border-bottom-right-radius: 20px;
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.btn-primary,
+.btn-success,
+.btn-danger,
+.btn-secondary {
+  font-family: "Poppins", sans-serif;
+  font-weight: 600;
+  font-size: 0.85rem;
+  border-radius: 10px;
+  padding: 8px 16px;
+  border: none;
+  transition: all 0.3s ease;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.btn-primary {
+  background: linear-gradient(90deg, #318407, #0b1e02);
+  color: #E6DF1D;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(90deg, #0b1e02, #318407);
+  box-shadow: 0 4px 12px rgba(49, 132, 7, 0.4);
+  transform: translateY(-2px);
+}
+
+.btn-success {
+  background: linear-gradient(90deg, #28a745, #1e7e34);
+  color: #fff;
+}
+
+.btn-success:hover {
+  background: linear-gradient(90deg, #1e7e34, #28a745);
+  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4);
+  transform: translateY(-2px);
+}
+
+.btn-danger {
+  background: linear-gradient(90deg, #dc3545, #c82333);
+  color: #fff;
+}
+
+.btn-danger:hover {
+  background: linear-gradient(90deg, #c82333, #dc3545);
+  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
+  transform: translateY(-2px);
+}
+
+.btn-secondary {
+  background: linear-gradient(90deg, #6c757d, #5a6268);
+  color: #fff;
+}
+
+.btn-secondary:hover {
+  background: linear-gradient(90deg, #5a6268, #6c757d);
+  box-shadow: 0 4px 12px rgba(108, 117, 125, 0.4);
+  transform: translateY(-2px);
 }
 </style>
