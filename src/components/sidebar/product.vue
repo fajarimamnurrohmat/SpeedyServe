@@ -1,20 +1,22 @@
 <template>
-  <div v-if="(level === 1) | (level === 2)">
+  <div v-if="level === 2">
     <h2 style="color: red">maaf bukan hak akses anda untuk halaman ini !</h2>
-    <p>
-      silahkan keluar & masuk sebagai admin untuk bisa masuk ke halaman ini
-    </p>
+    <p>silahkan keluar & masuk sebagai admin untuk bisa masuk ke halaman ini</p>
   </div>
-  <div class="container_all" v-if="level === 3">
-    <h2 class="name_menu" style="color: green;">Data Menu Makanan & Minuman</h2>
-    <button @click="showModal = true" class="btn_add_menu">
+  <div class="container_all" v-if="(level === 3) | (level === 1)">
+    <h2 class="name_menu" style="color: green">Data Menu Makanan & Minuman</h2>
+    <button @click="showModal = true" class="btn_add_menu" v-if="level === 3">
       <i class="fas fa-plus"></i> Tambah Menu
     </button>
 
     <!-- Modal -->
     <div v-if="showModal" class="modal-overlay" @click.self="closeModal">
       <div class="modal-content">
-        <span class="close-modal" @click="closeModal" style="color: red; text-align: right">
+        <span
+          class="close-modal"
+          @click="closeModal"
+          style="color: red; text-align: right"
+        >
           &times;
         </span>
         <h4 class="header-modal">
@@ -25,9 +27,17 @@
           <div class="form-group">
             <label for="kategori">Kategori</label>
             <p>Pilih nama Kategori</p>
-            <select id="kategori" class="form-control" v-model="selectedCategory">
+            <select
+              id="kategori"
+              class="form-control"
+              v-model="selectedCategory"
+            >
               <option disabled value="">Pilih kategori</option>
-              <option v-for="item in kategori" :key="item.id_category" :value="item.id_category">
+              <option
+                v-for="item in kategori"
+                :key="item.id_category"
+                :value="item.id_category"
+              >
                 {{ item.nama_category }}
               </option>
             </select>
@@ -35,7 +45,12 @@
           <div class="form-group">
             <label for="name_menu">Nama Menu</label>
             <p>Masukkan nama Menu</p>
-            <input type="text" id="name_menu" class="form-controll" v-model="productName" />
+            <input
+              type="text"
+              id="name_menu"
+              class="form-controll"
+              v-model="productName"
+            />
           </div>
         </div>
 
@@ -43,12 +58,20 @@
           <div class="form-group">
             <label for="Harga">Harga</label>
             <p>Masukkan Harga Menu</p>
-            <input type="number" id="Harga" class="form-controll" v-model="productPrice" />
+            <input
+              type="number"
+              id="Harga"
+              class="form-controll"
+              v-model="productPrice"
+            />
           </div>
         </div>
 
         <div style="margin-top: 10px; text-align: left">
-          <button @click="editIndex !== null ? updateProduct() : addProduct()" class="btn-add-bengkel">
+          <button
+            @click="editIndex !== null ? updateProduct() : addProduct()"
+            class="btn-add-bengkel"
+          >
             {{ editIndex !== null ? "Update Data" : "Simpan Data" }}
           </button>
         </div>
@@ -56,7 +79,9 @@
     </div>
     <!-- End of Modal -->
 
-    <hr style="border: 1px solid black; margin-top: 25px; margin-bottom: 25px" />
+    <hr
+      style="border: 1px solid black; margin-top: 25px; margin-bottom: 25px"
+    />
 
     <div class="info-page">
       <div class="tampil-baris" style="text-align: left">
@@ -72,7 +97,12 @@
 
       <div class="search-bar-container">
         <i class="fas fa-search search-icon"></i>
-        <input type="text" v-model="searchQuery" class="search-input" placeholder="Cari data..." />
+        <input
+          type="text"
+          v-model="searchQuery"
+          class="search-input"
+          placeholder="Cari data..."
+        />
       </div>
     </div>
 
@@ -84,18 +114,49 @@
             <th scope="col">Nama Menu</th>
             <th scope="col">Kategori</th>
             <th scope="col">Harga</th>
-            <th scope="col">Aksi</th>
+            <th scope="col">status</th>
+            <th scope="col" v-if="level === 3">Aksi</th>
+            <th scope="col" v-if="level === 1">Aksi</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="(product, index) in paginatedProducts" :key="product.id_menu">
+          <tr
+            v-for="(product, index) in paginatedProducts"
+            :key="product.id_menu"
+          >
             <td>{{ (currentPage - 1) * rowsPerPage + index + 1 }}</td>
             <td>{{ product.nama_menu }}</td>
             <td>{{ product.nama_category }}</td>
-            <td>Rp{{ Number(product.harga_menu).toLocaleString("id-ID", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</td>
             <td>
-              <button class="btn_action btn_delete" @click="deleteProduct(product.id_menu)">Hapus</button>
-              <button class="btn_action btn_edit" @click="editProduct(index, product)">Edit</button>
+              Rp{{
+                Number(product.harga_menu).toLocaleString("id-ID", {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })
+              }}
+            </td>
+            <td>{{ product.tersedia ? 'Tersedia' : 'Habis' }}</td>
+            <td v-if="level === 3">
+              <button
+                class="btn_action btn_delete"
+                @click="deleteProduct(product.id_menu)"
+              >
+                Hapus
+              </button>
+              <button
+                class="btn_action btn_edit"
+                @click="editProduct(index, product)"
+              >
+                Edit
+              </button>
+            </td>
+            <td v-if="level === 1">
+              <button
+                :class="product.tersedia ? 'btn-unavailable' : 'btn-available'"
+                @click="toggleAvailability(product)"
+              >
+                {{ product.tersedia ? "Habis" : "Tersedia" }}
+              </button>
             </td>
           </tr>
         </tbody>
@@ -117,11 +178,12 @@ export default {
       kategori: [],
       productName: "",
       productPrice: "",
+      tersedia: "true",
       selectedCategory: "",
       currentPage: 1,
       rowsPerPage: 5,
       searchQuery: "",
-      level:null,
+      level: null,
     };
   },
   computed: {
@@ -186,6 +248,7 @@ export default {
             id_category: this.selectedCategory,
             nama_menu: this.productName,
             harga_menu: this.productPrice,
+            tersedia: this.tersedia,
           },
           {
             headers: { Authorization: `Bearer ${token}` },
@@ -204,6 +267,7 @@ export default {
       this.productName = product.nama_menu;
       this.productPrice = product.harga_menu;
       this.selectedCategory = product.id_category;
+      this.tersedia = product.tersedia;
       this.showModal = true;
     },
     async updateProduct() {
@@ -220,6 +284,7 @@ export default {
             id_category: this.selectedCategory,
             nama_menu: this.productName,
             harga_menu: this.productPrice,
+            tersedia: this.tersedia,
           },
           {
             headers: { Authorization: `Bearer ${token}` },
@@ -231,6 +296,24 @@ export default {
       } catch (error) {
         console.error("Gagal mengupdate menu:", error);
         Swal.fire("Gagal", "Gagal mengupdate menu!", "error");
+      }
+    },
+    async toggleAvailability(product) {
+      try {
+        const token = localStorage.getItem("accessToken");
+        const newAvailability = product.tersedia === true ? false : true;
+
+        await axios.put(
+          `http://localhost:3000/menu_availability/${product.id_menu}`,
+          { tersedia: newAvailability },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+
+        this.fetchMenu();
+        Swal.fire("Berhasil", "Status ketersediaan diperbarui", "success");
+      } catch (error) {
+        console.error("Gagal memperbarui status:", error);
+        Swal.fire("Gagal", "Gagal memperbarui status ketersediaan!", "error");
       }
     },
     async deleteProduct(id_menu) {
@@ -268,7 +351,6 @@ export default {
   },
 };
 </script>
-
 
 <style scoped>
 .container_all {
@@ -488,6 +570,23 @@ export default {
   background-color: #035cba;
   transform: translateY(-2px);
 }
+
+.btn-available {
+  background-color: #4CAF50;
+  color: white;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+}
+
+.btn-unavailable {
+  background-color: #f44336;
+  color: white;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+}
+
 
 /* Additional mobile styles */
 @media (max-width: 576px) {

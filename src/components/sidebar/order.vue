@@ -1,94 +1,110 @@
 <template>
-  <h2 class="name_order" style="color: green; margin-top: 30px">
-    Halaman Pesanan
-  </h2>
-  <div class="container">
-    <div class="p-1 mx-auto pb-32">
-      <!-- Form Pemesan -->
-      <div class="form-row mb-6">
-        <div class="form-group w-full md:w-1/3">
-          <label class="form-label">Nama Pemesan</label>
-          <input
-            v-model="nama_pemesan"
-            type="text"
-            class="input-style"
-            placeholder="Masukkan nama"
-          />
-        </div>
-        <div class="form-group w-full md:w-1/3">
-          <label class="form-label">No HP</label>
-          <input
-            v-model="no_hp"
-            type="text"
-            class="input-style"
-            placeholder="Masukkan nomor HP (opsional)"
-          />
-        </div>
-        <div class="form-group w-full md:w-1/3">
-          <label class="form-label">Opsi Pesanan</label>
-          <select v-model="opsi_pesanan" class="input-style">
-            <option value="Take Away">Take Away</option>
-            <option value="Dine In">Dine In</option>
-          </select>
+  <div v-if="level === 1">
+    <h2 style="color: red">maaf bukan hak akses anda untuk halaman ini !</h2>
+    <p>
+      silahkan keluar & masuk sebagai admin untuk bisa masuk ke halaman ini
+    </p>
+  </div>
+  <div v-if="(level === 2) | (level === 3)">
+    <h2 class="name_order" style="color: green; margin-top: 30px">
+      Halaman Pesanan
+    </h2>
+    <div class="container">
+      <div class="p-1 mx-auto pb-32">
+        <!-- Form Pemesan -->
+        <div class="form-row mb-6">
+          <div class="form-group w-full md:w-1/3">
+            <label class="form-label">Nama Pemesan</label>
+            <input
+              v-model="nama_pemesan"
+              type="text"
+              class="input-style"
+              placeholder="Masukkan nama"
+            />
+          </div>
+          <div class="form-group w-full md:w-1/3">
+            <label class="form-label">No HP</label>
+            <input
+              v-model="no_hp"
+              type="text"
+              class="input-style"
+              placeholder="Masukkan nomor HP (opsional)"
+            />
+          </div>
+          <div class="form-group w-full md:w-1/3">
+            <label class="form-label">Opsi Pesanan</label>
+            <select v-model="opsi_pesanan" class="input-style">
+              <option value="Take Away">Take Away</option>
+              <option value="Dine In">Dine In</option>
+            </select>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-  <div class="container-2">
-    <h2 class="section-title">Detail Pesanan</h2>
-    <div v-for="(item, index) in detail_pesanan" :key="index" class="item-row">
-      <select v-model="item.id_menu" class="input-style">
-        <option disabled value="">Pilih Menu</option>
-        <option v-for="menu in menus" :key="menu.id_menu" :value="menu.id_menu">
-          {{ menu.nama_menu }}
-        </option>
-      </select>
-      <input
-        v-model.number="item.jumlah"
-        type="number"
-        min="1"
-        class="input-style w-24"
-        placeholder="Jumlah"
-      />
-      <button @click="hapusItem(index)" type="button" class="btn btn-danger">
-        Hapus
+    <div class="container-2">
+      <h2 class="section-title">Detail Pesanan</h2>
+      <div
+        v-for="(item, index) in detail_pesanan"
+        :key="index"
+        class="item-row"
+      >
+        <select v-model="item.id_menu" class="input-style">
+          <option disabled value="">Pilih Menu</option>
+          <option
+            v-for="menu in menus"
+            :key="menu.id_menu"
+            :value="menu.id_menu"
+          >
+            {{ menu.nama_menu }}
+          </option>
+        </select>
+        <input
+          v-model.number="item.jumlah"
+          type="number"
+          min="1"
+          class="input-style w-24"
+          placeholder="Jumlah"
+        />
+        <button @click="hapusItem(index)" type="button" class="btn btn-danger">
+          Hapus
+        </button>
+      </div>
+      <button @click="tambahItem" type="button" class="btn btn-add">
+        + Tambah Menu
       </button>
     </div>
-    <button @click="tambahItem" type="button" class="btn btn-add">
-      + Tambah Menu
-    </button>
-  </div>
-  <div class="container-3">
-  <div class="mb-4 text-start">
-    <label class="form-label">Keterangan</label>
-    <textarea
-      v-model="keterangan"
-      class="input-style"
-      rows="3"
-      placeholder="Tambahkan keterangan (opsional)"
-    ></textarea>
-  </div>
-
-  <div class="mb-4 text-start">
-    <label class="form-label">Jumlah Bayar</label>
-    <input
-      v-model.number="jumlah_bayar"
-      type="number"
-      class="input-style"
-      placeholder="Masukkan jumlah bayar"
-    />
-  </div>
-</div>
-
-  <!-- Footer Button -->
-  <div class="footer-button">
-    <div class="form-row items-center">
-      <div class="total-text">
-        Total: Rp{{ totalHarga.toLocaleString("id-ID") }}
+    <div class="container-3">
+      <div class="mb-4 text-start">
+        <label class="form-label">Keterangan</label>
+        <textarea
+          v-model="keterangan"
+          class="input-style"
+          rows="3"
+          placeholder="Tambahkan keterangan (opsional)"
+        ></textarea>
       </div>
-      <button @click="kirimPesanan" class="btn btn-submit">
-        Kirim Pesanan
-      </button>
+
+      <div class="mb-4 text-start">
+        <label class="form-label">Jumlah Bayar</label>
+        <input
+          v-model.number="jumlah_bayar"
+          type="number"
+          class="input-style"
+          placeholder="Masukkan jumlah bayar"
+        />
+      </div>
+    </div>
+
+    <!-- Footer Button -->
+    <div class="footer-button">
+      <div class="form-row items-center">
+        <div class="total-text">
+          Total: Rp{{ totalHarga.toLocaleString("id-ID") }}
+        </div>
+        <button @click="kirimPesanan" class="btn btn-submit">
+          Kirim Pesanan
+        </button>
+      </div>
     </div>
   </div>
 </template>
@@ -106,6 +122,7 @@ export default {
       opsi_pesanan: "Take Away",
       jumlah_bayar: 0,
       keterangan: "",
+      level: null,
       detail_pesanan: [{ id_menu: "", jumlah: 1 }],
     };
   },
@@ -122,12 +139,14 @@ export default {
   },
   mounted() {
     this.fetchMenu();
+    const savedLevel = localStorage.getItem("userLevel");
+    if (savedLevel) this.level = parseInt(savedLevel);
   },
   methods: {
     async fetchMenu() {
       try {
         const token = localStorage.getItem("accessToken");
-        const res = await axios.get("http://localhost:3000/menu", {
+        const res = await axios.get("http://localhost:3000/available_menu", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -144,8 +163,12 @@ export default {
       this.detail_pesanan.splice(index, 1);
     },
     async kirimPesanan() {
-      if (!this.nama_pemesan || !this.no_hp || this.jumlah_bayar <= 0) {
-        alert("Mohon isi semua data pemesan dengan benar.");
+      if (!this.nama_pemesan) {
+        alert("Nama pemesan tidak boleh kosong");
+        return;
+      }
+      if (this.jumlah_bayar < this.totalHarga){
+        alert("Uang yang anda berikan kurang");
         return;
       }
       if (this.detail_pesanan.length === 0) {
@@ -393,6 +416,17 @@ export default {
 }
 
 @media (max-width: 768px) {
+  .footer-button {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: #ffffff;
+  padding: 16px 20px;
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.08);
+  z-index: 100;
+}
+
   .form-group {
     width: 100% !important;
   }
