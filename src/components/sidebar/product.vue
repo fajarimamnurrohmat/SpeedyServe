@@ -1,9 +1,5 @@
 <template>
-  <div v-if="level === 2">
-    <h2 style="color: red">maaf bukan hak akses anda untuk halaman ini !</h2>
-    <p>silahkan keluar & masuk sebagai admin untuk bisa masuk ke halaman ini</p>
-  </div>
-  <div class="container_all" v-if="(level === 3) | (level === 1)">
+  <div class="container_all">
     <h2 class="name_menu" style="color: green">Data Menu Makanan & Minuman</h2>
     <button @click="showModal = true" class="btn_add_menu" v-if="level === 3">
       <i class="fas fa-plus"></i> Tambah Menu
@@ -29,7 +25,7 @@
             <p>Pilih nama Kategori</p>
             <select
               id="kategori"
-              class="form-control"
+              class="form-controll"
               v-model="selectedCategory"
             >
               <option disabled value="">Pilih kategori</option>
@@ -48,7 +44,7 @@
             <input
               type="text"
               id="name_menu"
-              class="form-controll"
+              class="form-control"
               v-model="productName"
             />
           </div>
@@ -135,7 +131,7 @@
                 })
               }}
             </td>
-            <td>{{ product.tersedia ? 'Tersedia' : 'Habis' }}</td>
+            <td>{{ product.tersedia ? "Tersedia" : "Habis" }}</td>
             <td v-if="level === 3">
               <button
                 class="btn_action btn_delete"
@@ -303,13 +299,33 @@ export default {
         const token = localStorage.getItem("accessToken");
         const newAvailability = product.tersedia === true ? false : true;
 
+        const result = await Swal.fire({
+          title: "Ubah Status?",
+          text: `Yakin ingin mengubah status menu "${
+            product.nama_menu
+          }" menjadi ${newAvailability ? "Tersedia" : "Habis"}?`,
+          icon: "question",
+          showCancelButton: true,
+          confirmButtonText: "Ya, Ubah",
+          cancelButtonText: "Batal",
+        });
+
+        if (!result.isConfirmed) return;
+
         await axios.put(
           `http://localhost:3000/menu_availability/${product.id_menu}`,
           { tersedia: newAvailability },
           { headers: { Authorization: `Bearer ${token}` } }
         );
 
-        this.fetchMenu();
+        // Update langsung pada produk yang ditemukan berdasarkan id_menu
+        const index = this.products.findIndex(
+          (p) => p.id_menu === product.id_menu
+        );
+        if (index !== -1) {
+          this.products[index].tersedia = newAvailability;
+        }
+
         Swal.fire("Berhasil", "Status ketersediaan diperbarui", "success");
       } catch (error) {
         console.error("Gagal memperbarui status:", error);
@@ -572,7 +588,7 @@ export default {
 }
 
 .btn-available {
-  background-color: #4CAF50;
+  background-color: #4caf50;
   color: white;
   padding: 6px 12px;
   border: none;
@@ -586,7 +602,6 @@ export default {
   border: none;
   border-radius: 4px;
 }
-
 
 /* Additional mobile styles */
 @media (max-width: 576px) {

@@ -8,7 +8,7 @@
         <i class="fas fa-bolt icon"></i> SpeedyServe
       </div>
       <p class="description">
-        SpeedyServe adalah sistem pencatatan makanan untuk warung <strong>Nasgor Mbk Indah</strong>
+        SpeedyServe adalah sistem pencatatan makanan untuk warung <strong style="color: green;">Nasgor Mbk Indah</strong>
         yang mempermudah dalam proses pencatatan pesanan dan pengelolaan transaksi harian secara efisien dan cepat.
       </p>
       <router-link to="/login">
@@ -47,7 +47,7 @@
 .hero-container::before {
   width: 600px;
   height: 600px;
-  background: radial-gradient(circle at center, #c6bf0c, #0b1e02);
+  background: radial-gradient(circle at center, #318407, #0b1e02);
   top: -200px;
   left: -200px;
 }
@@ -109,7 +109,7 @@
   font-family: "Poppins", sans-serif;
   font-size: 1.3rem;
   font-weight: bold;
-  color: #C6BF0C;
+  color: #296d09;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -120,7 +120,7 @@
   font-family: "Poppins", sans-serif;
   font-size: 2.7rem;
   font-weight: bold;
-  color: #C6BF0C;
+  color: #296d09;
   margin-top: 10px;
   margin-bottom: 20px;
   display: flex;
@@ -139,7 +139,7 @@
 }
 
 .btn-login {
-  background-color: #C6BF0C;
+  background-color: #296d09;
   color: white;
   font-weight: bold;
   padding: 12px 30px;
@@ -151,7 +151,7 @@
 }
 
 .btn-login:hover {
-  background-color: #E6DF1D;
+  background-color: #45b710;
   transform: scale(1.05);
 }
 

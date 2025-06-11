@@ -1,11 +1,15 @@
 <template>
   <div class="container_all">
-    <h2 class="name_order" style="color: green;">Daftar Pesanan</h2>
+    <h2 class="name_order" style="color: green">Daftar Pesanan</h2>
 
     <div class="d-flex justify-content-between mb-3">
       <div class="table_controls">
         <label for="rows_per_page">Tampilkan baris:</label>
-        <select v-model.number="rowsPerPage" id="rows_per_page" class="form-select">
+        <select
+          v-model.number="rowsPerPage"
+          id="rows_per_page"
+          class="form-select"
+        >
           <option :value="5">5</option>
           <option :value="10">10</option>
           <option :value="20">20</option>
@@ -23,7 +27,7 @@
       </div>
     </div>
 
-    <div class="table-responsive" style="text-align: left;">
+    <div class="table-responsive" style="text-align: left">
       <table class="table table-bordered table-striped mt-4">
         <thead class="table-head">
           <tr>
@@ -41,9 +45,18 @@
             <td>{{ (currentPage - 1) * rowsPerPage + index + 1 }}</td>
             <td>{{ order.nama_pemesan }}</td>
             <td>{{ order.opsi_pesanan }}</td>
-            <td>Rp{{ order.total_harga.toLocaleString("id-ID", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</td>
             <td>
-              <button class="btn btn-warning btn-sm" @click="showDetail(order)">Detail</button>
+              Rp{{
+                order.total_harga.toLocaleString("id-ID", {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                })
+              }}
+            </td>
+            <td>
+              <button class="btn btn-warning btn-sm" @click="showDetail(order)">
+                Detail
+              </button>
             </td>
             <td>{{ formatTimeOnly(order.waktu) }}</td>
             <td>{{ order.status_order }}</td>
@@ -59,7 +72,8 @@
     <div class="d-flex justify-content-between align-items-center mt-3">
       <div>
         Menampilkan {{ (currentPage - 1) * rowsPerPage + 1 }} -
-        {{ Math.min(currentPage * rowsPerPage, totalFiltered) }} dari {{ totalFiltered }} pesanan
+        {{ Math.min(currentPage * rowsPerPage, totalFiltered) }} dari
+        {{ totalFiltered }} pesanan
       </div>
       <div>
         <button
@@ -89,8 +103,14 @@
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title">Detail Pesanan - {{ selectedOrder.nama_pemesan }}</h5>
-            <button type="button" class="btn-close" @click="selectedOrder = null"></button>
+            <h5 class="modal-title">
+              Detail Pesanan - {{ selectedOrder.nama_pemesan }}
+            </h5>
+            <button
+              type="button"
+              class="btn-close"
+              @click="selectedOrder = null"
+            ></button>
           </div>
           <div class="modal-body">
             <div class="order-details-grid">
@@ -104,15 +124,36 @@
               </div>
               <div class="detail-item">
                 <strong>Total Harga:</strong>
-                <span>Rp{{ selectedOrder.total_harga.toLocaleString("id-ID", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</span>
+                <span
+                  >Rp{{
+                    selectedOrder.total_harga.toLocaleString("id-ID", {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })
+                  }}</span
+                >
               </div>
               <div class="detail-item">
                 <strong>Jumlah Bayar:</strong>
-                <span>Rp{{ selectedOrder.jumlah_bayar.toLocaleString("id-ID", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</span>
+                <span
+                  >Rp{{
+                    selectedOrder.jumlah_bayar.toLocaleString("id-ID", {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })
+                  }}</span
+                >
               </div>
               <div class="detail-item">
                 <strong>Kembalian:</strong>
-                <span>Rp{{ selectedOrder.kembalian.toLocaleString("id-ID", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</span>
+                <span
+                  >Rp{{
+                    selectedOrder.kembalian.toLocaleString("id-ID", {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })
+                  }}</span
+                >
               </div>
               <div class="detail-item full-width">
                 <strong>Keterangan:</strong>
@@ -130,10 +171,20 @@
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="(item, idx) in selectedOrder.detail_pesanan" :key="idx">
+                <tr
+                  v-for="(item, idx) in selectedOrder.detail_pesanan"
+                  :key="idx"
+                >
                   <td>{{ item.nama_menu }}</td>
                   <td>{{ item.jumlah }}</td>
-                  <td>Rp{{ item.subtotal.toLocaleString("id-ID", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</td>
+                  <td>
+                    Rp{{
+                      item.subtotal.toLocaleString("id-ID", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })
+                    }}
+                  </td>
                 </tr>
               </tbody>
             </table>
@@ -156,8 +207,16 @@
             </button>
 
             <!-- Tombol hapus untuk semua level -->
-            <button v-if="level === 2" class="btn btn-danger" @click="deleteOrder(selectedOrder.id_order)">Hapus</button>
-            <button class="btn btn-secondary" @click="selectedOrder = null">Tutup</button>
+            <button
+              v-if="level === 2"
+              class="btn btn-danger"
+              @click="deleteOrder(selectedOrder.id_order)"
+            >
+              Hapus
+            </button>
+            <button class="btn btn-secondary" @click="selectedOrder = null">
+              Tutup
+            </button>
           </div>
         </div>
       </div>
@@ -167,6 +226,7 @@
 
 <script>
 import axios from "axios";
+import Swal from "sweetalert2";
 
 export default {
   data() {
@@ -177,7 +237,7 @@ export default {
       searchQuery: "",
       selectedOrder: null,
       totalFiltered: 0,
-      level: 1, // contoh, bisa diganti sesuai login user (ambil dari localStorage atau Vuex)
+      level: 1,
     };
   },
   computed: {
@@ -185,10 +245,10 @@ export default {
       const beforeSeven = [];
       const afterSeven = [];
 
-      this.products.forEach(order => {
+      this.products.forEach((order) => {
         const dt = new Date(order.waktu);
         const totalMinutes = dt.getHours() * 60 + dt.getMinutes();
-        const limit = 19 * 60; // jam 19:00
+        const limit = 19 * 60;
 
         if (totalMinutes < limit) {
           beforeSeven.push(order);
@@ -203,10 +263,11 @@ export default {
 
       return beforeSeven.concat(afterSeven);
     },
-
     paginatedOrders() {
-      const filtered = this.sortedOrders.filter(order =>
-        order.nama_pemesan.toLowerCase().includes(this.searchQuery.toLowerCase())
+      const filtered = this.sortedOrders.filter((order) =>
+        order.nama_pemesan
+          .toLowerCase()
+          .includes(this.searchQuery.toLowerCase())
       );
 
       this.totalFiltered = filtered.length;
@@ -220,7 +281,6 @@ export default {
         this.currentPage * this.rowsPerPage
       );
     },
-
     totalPages() {
       return Math.ceil(this.totalFiltered / this.rowsPerPage);
     },
@@ -237,7 +297,11 @@ export default {
         this.products = response.data.data.orders;
       } catch (error) {
         console.error("Gagal mengambil data:", error);
-        alert("Gagal mengambil data. Pastikan token valid.");
+        Swal.fire(
+          "Gagal",
+          "Gagal mengambil data. Pastikan token valid.",
+          "error"
+        );
       }
     },
     showDetail(order) {
@@ -257,10 +321,20 @@ export default {
         );
       } catch (error) {
         console.error("Gagal membuat transaksi:", error);
-        alert("Gagal membuat transaksi.");
+        Swal.fire("Gagal", "Gagal membuat transaksi.", "error");
       }
     },
     async updateStatus(newStatus) {
+      const result = await Swal.fire({
+        title: `Yakin ingin mengubah status menjadi "${newStatus}"?`,
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Ya, ubah",
+        cancelButtonText: "Batal",
+      });
+
+      if (!result.isConfirmed) return;
+
       try {
         const token = localStorage.getItem("accessToken");
         await axios.put(
@@ -277,16 +351,28 @@ export default {
           await this.postTransaksi(this.selectedOrder.id_order);
         }
 
-        alert(`Status berhasil diubah menjadi "${newStatus}"`);
+        await Swal.fire(
+          "Berhasil",
+          `Status berhasil diubah menjadi "${newStatus}"`,
+          "success"
+        );
         this.selectedOrder = null;
         this.fetchOrders();
       } catch (error) {
         console.error("Gagal mengubah status:", error);
-        alert("Gagal mengubah status. Coba lagi.");
+        Swal.fire("Gagal", "Gagal mengubah status. Coba lagi.", "error");
       }
     },
     async deleteOrder(id_order) {
-      if (!confirm("Yakin ingin menghapus pesanan ini?")) return;
+      const result = await Swal.fire({
+        title: "Yakin ingin menghapus pesanan ini?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Ya, hapus",
+        cancelButtonText: "Batal",
+      });
+
+      if (!result.isConfirmed) return;
 
       try {
         const token = localStorage.getItem("accessToken");
@@ -298,15 +384,19 @@ export default {
 
         this.selectedOrder = null;
         this.fetchOrders();
-        alert("Pesanan berhasil dihapus!");
+        Swal.fire("Berhasil", "Pesanan berhasil dihapus!", "success");
       } catch (error) {
         console.error("Gagal menghapus pesanan:", error);
-        alert("Gagal menghapus pesanan. Cek koneksi atau token.");
+        Swal.fire(
+          "Gagal",
+          "Gagal menghapus pesanan. Cek koneksi atau token.",
+          "error"
+        );
       }
     },
     formatTimeOnly(dateTimeString) {
       const date = new Date(dateTimeString);
-      return date.toLocaleTimeString('id-ID', { hour12: false });
+      return date.toLocaleTimeString("id-ID", { hour12: false });
     },
   },
   watch: {
@@ -320,7 +410,6 @@ export default {
   mounted() {
     this.fetchOrders();
 
-    // Contoh ambil level user dari localStorage jika ada
     const savedLevel = localStorage.getItem("userLevel");
     if (savedLevel) this.level = parseInt(savedLevel);
   },
@@ -328,7 +417,7 @@ export default {
 </script>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap");
 
 .name_order {
   font-family: "Poppins", sans-serif;
@@ -386,7 +475,7 @@ export default {
 
 .modal-header {
   background: linear-gradient(90deg, #318407, #0b1e02);
-  color: #E6DF1D;
+  color: #e6df1d;
   border-top-left-radius: 20px;
   border-top-right-radius: 20px;
   padding: 15px 20px;
@@ -405,7 +494,7 @@ export default {
 
 .btn-close {
   background: none;
-  color: #E6DF1D;
+  color: #e6df1d;
   font-size: 1.2rem;
   opacity: 0.8;
   transition: opacity 0.3s ease, transform 0.3s ease;
@@ -470,7 +559,7 @@ export default {
 }
 
 .modal-body .table thead {
-  background: linear-gradient(90deg, #E6DF1D, #d4cc17);
+  background: linear-gradient(90deg, #e6df1d, #d4cc17);
   color: #1a1a1a;
   font-weight: 600;
   text-transform: uppercase;
@@ -520,7 +609,7 @@ export default {
 
 .btn-primary {
   background: linear-gradient(90deg, #318407, #0b1e02);
-  color: #E6DF1D;
+  color: #e6df1d;
 }
 
 .btn-primary:hover {

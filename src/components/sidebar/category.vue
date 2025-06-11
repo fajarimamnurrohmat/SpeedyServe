@@ -1,13 +1,13 @@
 <template>
-  <div v-if="(level === 1) | (level === 2)">
+  <div v-if="(level === 1)">
     <h2 style="color: red">maaf bukan hak akses anda untuk halaman ini !</h2>
     <p>
       silahkan keluar & masuk sebagai admin untuk bisa masuk ke halaman ini
     </p>
   </div>
-  <div v-if="level === 3" class="container">
+  <div v-if="level === 3 | level === 2" class="container">
     <h2 class="name_category" style="color: green;">Data Kategori</h2>
-    <button @click="showModal = true" class="btn_add_category">
+    <button @click="showModal = true" class="btn_add_category" v-if="level === 3">
       <i class="fas fa-plus"></i> Tambah kategori
     </button>
 
@@ -71,7 +71,7 @@
           <tr>
             <th scope="col">No</th>
             <th scope="col">Nama Kategori</th>
-            <th scope="col">Aksi</th>
+            <th scope="col" v-if="level === 3">Aksi</th>
           </tr>
         </thead>
         <tbody>
@@ -81,7 +81,7 @@
           >
             <td>{{ (currentPage - 1) * rowsPerPage + index + 1 }}</td>
             <td>{{ category.nama_category }}</td>
-            <td>
+            <td v-if="level === 3">
               <button
                 class="btn_action btn_delete"
                 @click="deleteCategory(category.id_category)"

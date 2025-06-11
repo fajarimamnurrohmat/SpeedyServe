@@ -2,7 +2,8 @@
   <div v-if="level === 1">
     <h2 style="color: red">maaf bukan hak akses anda untuk halaman ini !</h2>
     <p>
-      silahkan keluar & masuk sebagai admin untuk bisa masuk ke halaman ini
+      silahkan keluar & masuk sebagai admin atau kasir untuk bisa masuk ke
+      halaman ini
     </p>
   </div>
   <div v-if="(level === 2) | (level === 3)">
@@ -84,7 +85,7 @@
         ></textarea>
       </div>
 
-      <div class="mb-4 text-start">
+      <div class="text-start">
         <label class="form-label">Jumlah Bayar</label>
         <input
           v-model.number="jumlah_bayar"
@@ -96,21 +97,25 @@
     </div>
 
     <!-- Footer Button -->
-    <div class="footer-button">
-      <div class="form-row items-center">
-        <div class="total-text">
+    <div class="form-row items-center justify-between w-full">
+      <div class="text-left">
+        <div class="total-text mb-1">
           Total: Rp{{ totalHarga.toLocaleString("id-ID") }}
         </div>
-        <button @click="kirimPesanan" class="btn btn-submit">
-          Kirim Pesanan
-        </button>
+        <div class="change-text" v-if="jumlah_bayar > 0">
+          Kembalian: Rp{{ (jumlah_bayar - totalHarga).toLocaleString("id-ID") }}
+        </div>
       </div>
+      <button @click="kirimPesanan" class="btn btn-submit w-40">
+        Kirim Pesanan
+      </button>
     </div>
   </div>
 </template>
 
 <script>
 import axios from "axios";
+import Swal from "sweetalert2";
 
 export default {
   name: "OrderPage",
@@ -164,24 +169,33 @@ export default {
     },
     async kirimPesanan() {
       if (!this.nama_pemesan) {
-        alert("Nama pemesan tidak boleh kosong");
+        Swal.fire("Peringatan", "Nama pemesan tidak boleh kosong", "warning");
         return;
       }
-      if (this.jumlah_bayar < this.totalHarga){
-        alert("Uang yang anda berikan kurang");
+      if (this.jumlah_bayar < this.totalHarga) {
+        Swal.fire("Peringatan", "Nominal yang anda berikan salah", "warning");
         return;
       }
       if (this.detail_pesanan.length === 0) {
-        alert("Detail pesanan tidak boleh kosong.");
+        Swal.fire(
+          "Peringatan",
+          "Detail pesanan tidak boleh kosong.",
+          "warning"
+        );
         return;
       }
       const validItems = this.detail_pesanan.filter(
         (item) => item.id_menu && item.jumlah > 0
       );
       if (validItems.length !== this.detail_pesanan.length) {
-        alert("Pastikan semua menu dipilih dan jumlah lebih dari 0.");
+        Swal.fire(
+          "Peringatan",
+          "Pastikan semua menu dipilih dan jumlah lebih dari 0.",
+          "warning"
+        );
         return;
       }
+
       const payload = {
         nama_pemesan: this.nama_pemesan,
         no_hp: this.no_hp,
@@ -190,6 +204,7 @@ export default {
         keterangan: this.keterangan,
         detail_pesanan: validItems,
       };
+
       try {
         const token = localStorage.getItem("accessToken");
         const res = await axios.post("http://localhost:3000/order", payload, {
@@ -197,8 +212,24 @@ export default {
             Authorization: `Bearer ${token}`,
           },
         });
-        alert("Pesanan berhasil dikirim!");
-        console.log(res.data);
+
+        Swal.fire("Berhasil", "Pesanan berhasil dikirim!", "success");
+
+        // Konfirmasi cetak resi
+        const printConfirm = await Swal.fire({
+          title: "Cetak Resi",
+          text: "Apakah Anda ingin mencetak resi?",
+          icon: "question",
+          showCancelButton: true,
+          confirmButtonText: "Ya",
+          cancelButtonText: "Tidak",
+        });
+
+        if (printConfirm.isConfirmed) {
+          this.printReceipt();
+        }
+
+        // Reset form
         this.nama_pemesan = "";
         this.no_hp = "";
         this.opsi_pesanan = "Take Away";
@@ -207,7 +238,63 @@ export default {
         this.detail_pesanan = [{ id_menu: "", jumlah: 1 }];
       } catch (err) {
         console.error("Gagal kirim pesanan:", err);
-        alert("Terjadi kesalahan saat mengirim pesanan.");
+        Swal.fire("Error", "Terjadi kesalahan saat mengirim pesanan.", "error");
+      }
+    },
+    async printReceipt() {
+      const receiptContent = `
+          NOTA BELANJA
+      "Nasgor Mbk Indah"
+      ------------------------
+      Nama: ${this.nama_pemesan}
+      Tanggal: ${new Date().toLocaleDateString('id-ID')}
+      Total: Rp${this.totalHarga.toLocaleString('id-ID')}
+      bayar: Rp${this.jumlah_bayar.toLocaleString('id-ID')}
+      Opsi: ${this.opsi_pesanan}
+      Ket: ${this.keterangan}
+      Detail: 
+          ${this.detail_pesanan.map(item => {
+          const menu = this.menus.find(m => m.id_menu === item.id_menu);
+          return `${menu?.nama_menu || 'Unknown'} x${item.jumlah}`;
+        }).join('\n          ')}
+      ------------------------
+           TERIMA KASIH!
+      ------------------------
+      menerima pesanan
+      Wa:0895367354421
+      `;
+
+      if (!navigator.bluetooth) {
+        Swal.fire("Error", "Browser tidak mendukung Bluetooth.", "error");
+        return;
+      }
+
+      try {
+        // Ambil informasi koneksi dari localStorage
+        const savedDeviceInfo = JSON.parse(localStorage.getItem('bluetoothDevice'));
+        if (!savedDeviceInfo) {
+          throw new Error('Koneksi printer belum disimpan. Silakan hubungkan printer di halaman pengaturan.');
+        }
+
+        // Minta ulang koneksi jika diperlukan
+        const device = await navigator.bluetooth.requestDevice({
+          filters: [{ services: ['000018f0-0000-1000-8000-00805f9b34fb'], name: savedDeviceInfo.name }]
+        });
+        const server = await device.gatt.connect();
+        const service = await server.getPrimaryService('000018f0-0000-1000-8000-00805f9b34fb');
+        const characteristics = await service.getCharacteristics();
+        const writeChar = characteristics.find(char => char.properties.write);
+
+        if (!writeChar) {
+          throw new Error('Karakteristik untuk menulis data tidak ditemukan.');
+        }
+
+        const encoder = new TextEncoder('utf-8');
+        const data = encoder.encode(receiptContent + '\x1D\x56\x41\x00'); // Cetak dan potong
+        await writeChar.writeValue(data);
+        Swal.fire("Sukses", "Resi berhasil dicetak!", "success");
+      } catch (error) {
+        Swal.fire("Error", "Gagal mencetak resi: " + error.message + ". Silakan periksa koneksi printer atau hubungkan ulang di halaman pengaturan.", "error");
       }
     },
   },
@@ -237,7 +324,7 @@ export default {
   background: #fefefe;
   border-radius: 8px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-  margin-bottom: 150px;
+  margin-bottom: 50px;
 }
 
 .name_order {
@@ -391,17 +478,6 @@ export default {
   text-align: left;
 }
 
-.footer-button {
-  position: fixed;
-  bottom: 0;
-  left: 250px;
-  right: 0;
-  background: #ffffff;
-  padding: 16px 20px;
-  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.08);
-  z-index: 100;
-}
-
 .total-text {
   font-family: "Inter", sans-serif;
   font-size: 1.125rem;
@@ -415,17 +491,21 @@ export default {
   width: 100%;
 }
 
-@media (max-width: 768px) {
-  .footer-button {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: #ffffff;
-  padding: 16px 20px;
-  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.08);
-  z-index: 100;
+.change-text {
+  font-family: "Inter", sans-serif;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #6b7280;
 }
+
+.total-text {
+  font-family: "Inter", sans-serif;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #1f2937;
+}
+
+@media (max-width: 768px) {
 
   .form-group {
     width: 100% !important;

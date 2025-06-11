@@ -71,7 +71,7 @@
       <div class="logout-section">
         <a class="logout" href="#" @click.prevent="handleLogout">
           <i class="fas fa-sign-out-alt" style="color: red"></i>
-          <span style="color: red">Logout</span>
+          <span style="color: red">Keluar</span>
         </a>
       </div>
     </nav>
