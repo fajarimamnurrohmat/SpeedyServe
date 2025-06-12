@@ -243,27 +243,24 @@ export default {
     },
     async printReceipt() {
       const receiptContent = `
-          NOTA BELANJA
+              NOTA
       "Nasgor Mbk Indah"
       ------------------------
       Nama: ${this.nama_pemesan}
-      Tanggal: ${new Date().toLocaleDateString("id-ID")}
-      Total: Rp${this.totalHarga.toLocaleString("id-ID")}
-      bayar: Rp${this.jumlah_bayar.toLocaleString("id-ID")}
-      Opsi: ${this.opsi_pesanan}
+      Tanggal: ${new Date().toLocaleDateString('id-ID')}
+      Total: Rp${this.totalHarga.toLocaleString('id-ID')}
+      Bayar: Rp${this.jumlah_bayar.toLocaleString('id-ID')}
       Ket: ${this.keterangan}
       Detail: 
-          ${this.detail_pesanan
-            .map((item) => {
-              const menu = this.menus.find((m) => m.id_menu === item.id_menu);
-              return `${menu?.nama_menu || "Unknown"} x${item.jumlah}`;
-            })
-            .join("\n          ")}
+          ${this.detail_pesanan.map(item => {
+          const menu = this.menus.find(m => m.id_menu === item.id_menu);
+          return `${menu?.nama_menu || 'Unknown'} x${item.jumlah}`;
+        }).join('\n          ')}
       ------------------------
-           TERIMA KASIH!
+            TERIMA KASIH!
       ------------------------
-      menerima pesanan
-      Wa:0895367354421
+      pemesanan
+      Wa.0895367354421
       `;
 
       if (!navigator.bluetooth) {
@@ -273,47 +270,30 @@ export default {
 
       try {
         // Ambil informasi koneksi dari localStorage
-        const savedDeviceInfo = JSON.parse(
-          localStorage.getItem("bluetoothDevice")
-        );
+        const savedDeviceInfo = JSON.parse(localStorage.getItem('bluetoothDevice'));
         if (!savedDeviceInfo) {
-          throw new Error(
-            "Koneksi printer belum disimpan. Silakan hubungkan printer di halaman pengaturan."
-          );
+          throw new Error('Koneksi printer belum disimpan. Silakan hubungkan printer di halaman pengaturan.');
         }
 
         // Minta ulang koneksi jika diperlukan
         const device = await navigator.bluetooth.requestDevice({
-          filters: [
-            {
-              services: ["000018f0-0000-1000-8000-00805f9b34fb"],
-              name: savedDeviceInfo.name,
-            },
-          ],
+          filters: [{ services: ['000018f0-0000-1000-8000-00805f9b34fb'], name: savedDeviceInfo.name }]
         });
         const server = await device.gatt.connect();
-        const service = await server.getPrimaryService(
-          "000018f0-0000-1000-8000-00805f9b34fb"
-        );
+        const service = await server.getPrimaryService('000018f0-0000-1000-8000-00805f9b34fb');
         const characteristics = await service.getCharacteristics();
-        const writeChar = characteristics.find((char) => char.properties.write);
+        const writeChar = characteristics.find(char => char.properties.write);
 
         if (!writeChar) {
-          throw new Error("Karakteristik untuk menulis data tidak ditemukan.");
+          throw new Error('Karakteristik untuk menulis data tidak ditemukan.');
         }
 
-        const encoder = new TextEncoder("utf-8");
-        const data = encoder.encode(receiptContent + "\x1D\x56\x41\x00"); // Cetak dan potong
+        const encoder = new TextEncoder('utf-8');
+        const data = encoder.encode(receiptContent + '\x1D\x56\x41\x00'); // Cetak dan potong
         await writeChar.writeValue(data);
         Swal.fire("Sukses", "Resi berhasil dicetak!", "success");
       } catch (error) {
-        Swal.fire(
-          "Error",
-          "Gagal mencetak resi: " +
-            error.message +
-            ". Silakan periksa koneksi printer atau hubungkan ulang di halaman pengaturan.",
-          "error"
-        );
+        Swal.fire("Error", "Gagal mencetak resi: " + error.message + ". Silakan periksa koneksi printer atau hubungkan ulang di halaman pengaturan.", "error");
       }
     },
   },
