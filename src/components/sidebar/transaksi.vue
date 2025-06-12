@@ -241,7 +241,7 @@ export default {
       }
       try {
         const token = localStorage.getItem("accessToken");
-        const response = await axios.get("http://localhost:3000/transaksi", {
+        const response = await axios.get("https://speedyservebe-production.up.railway.app/transaksi", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -281,7 +281,7 @@ export default {
       try {
         const token = localStorage.getItem("accessToken");
         const response = await axios.get(
-          `http://localhost:3000/order/${id_order}`,
+          `https://speedyservebe-production.up.railway.app/order/${id_order}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,

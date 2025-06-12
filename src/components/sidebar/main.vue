@@ -122,7 +122,7 @@ export default {
         if (refreshToken) {
           try {
             // Kirim permintaan DELETE untuk logout dari backend
-            await axios.delete("http://localhost:3000/authentications", {
+            await axios.delete("https://speedyservebe-production.up.railway.app/authentications", {
               data: {
                 refreshToken: refreshToken,
               },

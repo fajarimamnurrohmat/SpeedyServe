@@ -26,7 +26,7 @@ function startTokenRefresh() {
       console.log("Refreshing access token...");
       const refreshToken = localStorage.getItem("refreshToken");
       const response = await axios.put(
-        "http://localhost:3000/authentications",
+        "https://speedyservebe-production.up.railway.app/authentications",
         { refreshToken }
       );
 

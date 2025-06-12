@@ -209,7 +209,7 @@ export default {
     async fetchMenu() {
       try {
         const token = localStorage.getItem("accessToken");
-        const response = await axios.get("http://localhost:3000/menu", {
+        const response = await axios.get("https://speedyservebe-production.up.railway.app/menu", {
           headers: { Authorization: `Bearer ${token}` },
         });
         // Urutkan berdasarkan input awal (asumsi data awal lebih dahulu berada di array awal)
@@ -221,7 +221,7 @@ export default {
     async fetchKategori() {
       try {
         const token = localStorage.getItem("accessToken");
-        const response = await axios.get("http://localhost:3000/category", {
+        const response = await axios.get("https://speedyservebe-production.up.railway.app/category", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -239,7 +239,7 @@ export default {
       try {
         const token = localStorage.getItem("accessToken");
         await axios.post(
-          "http://localhost:3000/menu",
+          "https://speedyservebe-production.up.railway.app/menu",
           {
             id_category: this.selectedCategory,
             nama_menu: this.productName,
@@ -275,7 +275,7 @@ export default {
         const token = localStorage.getItem("accessToken");
         const product = this.products[this.editIndex];
         await axios.put(
-          `http://localhost:3000/menu/${product.id_menu}`,
+          `https://speedyservebe-production.up.railway.app/menu/${product.id_menu}`,
           {
             id_category: this.selectedCategory,
             nama_menu: this.productName,
@@ -313,7 +313,7 @@ export default {
         if (!result.isConfirmed) return;
 
         await axios.put(
-          `http://localhost:3000/menu_availability/${product.id_menu}`,
+          `https://speedyservebe-production.up.railway.app/menu_availability/${product.id_menu}`,
           { tersedia: newAvailability },
           { headers: { Authorization: `Bearer ${token}` } }
         );
@@ -348,7 +348,7 @@ export default {
 
       try {
         const token = localStorage.getItem("accessToken");
-        await axios.delete(`http://localhost:3000/menu/${id_menu}`, {
+        await axios.delete(`https://speedyservebe-production.up.railway.app/menu/${id_menu}`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         this.fetchMenu();

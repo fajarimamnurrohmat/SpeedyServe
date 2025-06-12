@@ -153,7 +153,7 @@ export default {
     async fetchCategories() {
       try {
         const token = localStorage.getItem("accessToken");
-        const response = await axios.get("http://localhost:3000/category", {
+        const response = await axios.get("https://speedyservebe-production.up.railway.app/category", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -171,12 +171,12 @@ export default {
 
         if (this.editIndex !== null) {
           const id = this.categories[this.editIndex].id_category;
-          await axios.put(`http://localhost:3000/category/${id}`, {
+          await axios.put(`https://speedyservebe-production.up.railway.app/category/${id}`, {
             nama_category: this.kategoriInput,
           }, { headers });
           Swal.fire("Berhasil", "Data kategori berhasil diperbarui", "success");
         } else {
-          await axios.post("http://localhost:3000/category", {
+          await axios.post("https://speedyservebe-production.up.railway.app/category", {
             nama_category: this.kategoriInput,
           }, { headers });
           Swal.fire("Berhasil", "Data kategori berhasil disimpan", "success");
@@ -203,7 +203,7 @@ export default {
       if (confirm.isConfirmed) {
         try {
           const token = localStorage.getItem("accessToken");
-          await axios.delete(`http://localhost:3000/category/${id}`, {
+          await axios.delete(`https://speedyservebe-production.up.railway.app/category/${id}`, {
             headers: { Authorization: `Bearer ${token}` },
           });
           Swal.fire("Berhasil", "Data kategori berhasil dihapus", "success");

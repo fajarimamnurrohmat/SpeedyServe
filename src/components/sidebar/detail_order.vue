@@ -289,7 +289,7 @@ export default {
     async fetchOrders() {
       try {
         const token = localStorage.getItem("accessToken");
-        const response = await axios.get("http://localhost:3000/order", {
+        const response = await axios.get("https://speedyservebe-production.up.railway.app/order", {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -297,6 +297,7 @@ export default {
         this.products = response.data.data.orders;
       } catch (error) {
         console.error("Gagal mengambil data:", error);
+        console.log('DETAIL ERROR:', error.response?.data || error.message);
         Swal.fire(
           "Gagal",
           "Gagal mengambil data. Pastikan token valid.",
@@ -311,7 +312,7 @@ export default {
       try {
         const token = localStorage.getItem("accessToken");
         await axios.post(
-          "http://localhost:3000/transaksi",
+          "https://speedyservebe-production.up.railway.app/transaksi",
           { id_order },
           {
             headers: {
@@ -338,7 +339,7 @@ export default {
       try {
         const token = localStorage.getItem("accessToken");
         await axios.put(
-          `http://localhost:3000/status_order/${this.selectedOrder.id_order}`,
+          `https://speedyservebe-production.up.railway.app/status_order/${this.selectedOrder.id_order}`,
           { status_order: newStatus },
           {
             headers: {
@@ -376,7 +377,7 @@ export default {
 
       try {
         const token = localStorage.getItem("accessToken");
-        await axios.delete(`http://localhost:3000/order/${id_order}`, {
+        await axios.delete(`https://speedyservebe-production.up.railway.app/order/${id_order}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },

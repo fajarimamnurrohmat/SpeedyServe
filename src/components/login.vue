@@ -83,7 +83,7 @@ export default {
       this.errorMessage = "";
 
       try {
-        const response = await axios.post("http://localhost:3000/authentications", {
+        const response = await axios.post("https://speedyservebe-production.up.railway.app/authentications", {
           username: this.username,
           password: this.password,
         });
