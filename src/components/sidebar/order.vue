@@ -250,6 +250,7 @@ export default {
       Tanggal: ${new Date().toLocaleDateString('id-ID')}
       Total: Rp${this.totalHarga.toLocaleString('id-ID')}
       Bayar: Rp${this.jumlah_bayar.toLocaleString('id-ID')}
+      Kembali: Rp${(this.jumlah_bayar - this.totalHarga).toLocaleString('id-ID')}
       Ket: ${this.keterangan}
       Detail: 
           ${this.detail_pesanan.map(item => {
