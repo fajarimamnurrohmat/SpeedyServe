@@ -213,8 +213,6 @@ export default {
           },
         });
 
-        Swal.fire("Berhasil", "Pesanan berhasil dikirim!", "success");
-
         // Konfirmasi cetak resi
         const printConfirm = await Swal.fire({
           title: "Cetak Resi",
@@ -228,7 +226,11 @@ export default {
         if (printConfirm.isConfirmed) {
           this.printReceipt();
         }
-
+        
+        if (!printConfirm.isConfirmed) {
+          Swal.fire("Berhasil", "Pesanan berhasil dikirim!", "success");
+        }
+        
         // Reset form
         this.nama_pemesan = "";
         this.no_hp = "";
