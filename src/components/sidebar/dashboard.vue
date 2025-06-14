@@ -536,7 +536,7 @@ export default {
 .chart-title {
   font-size: 1.125rem;
   font-weight: 600;
-  color: #4b5563;
+  color: green;
   margin-bottom: 0.5rem;
 }
 
