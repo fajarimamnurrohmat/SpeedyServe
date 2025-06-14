@@ -8,19 +8,21 @@
     <!-- Notifikasi Progres -->
     <div class="notification">
       <p class="notification-text">
-        ⚠️ Halaman dashboard ini masih dalam proses pengerjaan.
+        📊 Dashboard live! Data penjualan kini tersaji.
       </p>
     </div>
 
     <!-- Statistik Cards -->
     <div class="stat-cards">
       <div class="stat-card">
-        <canvas id="menuPieChart"></canvas>
+        <h3 class="chart-title">Grafik Pesanan</h3>
+        <canvas id="orderStatusChart"></canvas>
+        <p class="chart-description">Total pesanan: {{ totalOrder }}</p>
       </div>
-
       <div class="stat-card">
-        <p class="stat-label">Total Order Hari Ini</p>
-        <p class="stat-value">{{ totalOrder }}</p>
+        <h3 class="chart-title">Grafik Menu</h3>
+        <canvas id="menuPieChart"></canvas>
+        <p class="chart-description">Total menu: {{ totalMenu }}</p>
       </div>
     </div>
 
@@ -67,11 +69,14 @@ export default {
     return {
       totalMenu: 0,
       menuTersedia: 0,
-      totalOrder: "--",
+      totalOrder: 0,
       transactions: [],
       menuChart: null,
+      orderStatusChart: null,
       salesChart: null,
       products: [],
+      orders: [],
+      orderStatus: {}, // Inisialisasi sebagai objek kosong
     };
   },
   methods: {
@@ -90,7 +95,8 @@ export default {
             },
           }
         );
-        this.transactions = response.data.data.transactions;
+        this.transactions = response.data.data.transactions || [];
+        console.log("Data Transactions:", this.transactions);
         this.updateSalesChart();
       } catch (error) {
         console.error("Gagal mengambil data transaksi:", error);
@@ -105,11 +111,31 @@ export default {
             headers: { Authorization: `Bearer ${token}` },
           }
         );
-        this.products = response.data.data.menu.reverse();
+        this.products = response.data.data.menu.reverse() || [];
+        console.log("Data Menu:", this.products);
         this.calculateMenuStats();
         this.updateMenuChart();
       } catch (error) {
         console.error("Gagal mengambil data menu:", error);
+      }
+    },
+    async fetchOrders() {
+      try {
+        const token = localStorage.getItem("accessToken");
+        const response = await axios.get(
+          "https://speedyservebe-production.up.railway.app/order",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        this.orders = response.data.data.orders || [];
+        console.log("Data Orders:", this.orders);
+        this.calculateOrderStats();
+        this.updateOrderStatusChart();
+      } catch (error) {
+        console.error("Gagal mengambil data order:", error);
       }
     },
     calculateMenuStats() {
@@ -117,6 +143,18 @@ export default {
       this.menuTersedia = this.products.filter(
         (product) => product.tersedia
       ).length;
+    },
+    calculateOrderStats() {
+      this.totalOrder = this.orders.length;
+      this.orderStatus = {}; // Reset orderStatus setiap kali dihitung
+      this.orders.forEach((order) => {
+        const status = order.status_order || "Tidak Diketahui"; // Handle jika status null/undefined
+        if (!this.orderStatus[status]) {
+          this.orderStatus[status] = 0;
+        }
+        this.orderStatus[status]++;
+      });
+      console.log("Order Status:", this.orderStatus); // Debug
     },
     processMonthlyData() {
       const monthlyData = {};
@@ -145,6 +183,31 @@ export default {
       const ctx = document.getElementById("menuPieChart").getContext("2d");
       if (this.menuChart) {
         this.menuChart.destroy();
+      }
+
+      if (this.totalMenu === 0) {
+        this.menuChart = new Chart(ctx, {
+          type: "pie",
+          data: {
+            labels: ["Tidak Ada Data"],
+            datasets: [
+              {
+                data: [1],
+                backgroundColor: ["#D1D5DB"],
+                borderWidth: 1,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { display: false },
+              tooltip: { enabled: false },
+            },
+          },
+        });
+        return;
       }
 
       this.menuChart = new Chart(ctx, {
@@ -194,6 +257,87 @@ export default {
         },
       });
     },
+    updateOrderStatusChart() {
+      const ctx = document.getElementById("orderStatusChart").getContext("2d");
+      if (this.orderStatusChart) {
+        this.orderStatusChart.destroy();
+      }
+
+      if (this.totalOrder === 0) {
+        this.orderStatusChart = new Chart(ctx, {
+          type: "pie",
+          data: {
+            labels: ["Tidak Ada Data"],
+            datasets: [
+              {
+                data: [1],
+                backgroundColor: ["#D1D5DB"],
+                borderWidth: 1,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { display: false },
+              tooltip: { enabled: false },
+            },
+          },
+        });
+        return;
+      }
+
+      const orderLabels = Object.keys(this.orderStatus);
+      const orderData = orderLabels.map((status) => this.orderStatus[status]);
+
+      this.orderStatusChart = new Chart(ctx, {
+        type: "pie",
+        data: {
+          labels: orderLabels,
+          datasets: [
+            {
+              data: orderData,
+              backgroundColor: ["#059669", "#FACC15"],
+              borderWidth: 1,
+            },
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: "top",
+              labels: {
+                font: {
+                  size: 12,
+                },
+                color: "#4B5563",
+              },
+            },
+            tooltip: {
+              callbacks: {
+                label: function (context) {
+                  let label = context.label || "";
+                  let value = context.parsed || 0;
+                  return `${label}: ${value} (${(
+                    (value / this.totalOrder) *
+                    100
+                  ).toFixed(1)}%)`;
+                }.bind(this),
+              },
+              titleFont: {
+                size: 12,
+              },
+              bodyFont: {
+                size: 12,
+              },
+            },
+          },
+        },
+      });
+    },
     updateSalesChart() {
       const { labels, data } = this.processMonthlyData();
       const ctx = document.getElementById("salesChart").getContext("2d");
@@ -205,11 +349,11 @@ export default {
       this.salesChart = new Chart(ctx, {
         type: "bar",
         data: {
-          labels: labels,
+          labels: labels.length > 0 ? labels : ["Tidak Ada Data"],
           datasets: [
             {
               label: "Pendapatan (Rp)",
-              data: data,
+              data: data.length > 0 ? data : [0],
               backgroundColor: "rgba(59, 130, 246, 0.5)",
               borderColor: "rgba(59, 130, 246, 1)",
               borderWidth: 1,
@@ -243,9 +387,7 @@ export default {
                     "60 jt",
                   ];
                   const closest = ranges.reduce((prev, curr) =>
-                    Math.abs(curr - value) < Math.abs(prev - value)
-                      ? curr
-                      : prev
+                    Math.abs(curr - value) < Math.abs(prev - value) ? curr : prev
                   );
                   const index = ranges.indexOf(closest);
                   return labels[index] || "Rp " + value.toLocaleString("id-ID");
@@ -303,12 +445,9 @@ export default {
     },
   },
   mounted() {
-    this.totalOrder = 9;
-    this.transactions = [
-      { waktu: "2025-06-13T00:00:00Z", total_harga: 337000 },
-    ];
     this.fetchTransactions();
     this.fetchMenu();
+    this.fetchOrders();
   },
 };
 </script>
@@ -352,7 +491,7 @@ export default {
 
 .stat-cards {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: 1fr 1fr; /* Dua kolom untuk menu dan order status pie chart */
   gap: 1.5rem;
   margin-bottom: 1.5rem;
 }
@@ -364,10 +503,11 @@ export default {
   padding: 1.25rem;
   border: 1px solid #e5e7eb;
   transition: box-shadow 0.3s;
-  height: 200px; /* Tinggi tetap untuk grafik pie */
+  height: 300px; /* Tingkatkan tinggi untuk memberikan ruang lebih */
   display: flex;
+  flex-direction: column;
+  justify-content: space-between;
   align-items: center;
-  justify-content: center;
 }
 
 .stat-card:hover {
@@ -406,13 +546,28 @@ export default {
   width: 100%;
 }
 
+.chart-description {
+  font-size: 0.9rem;
+  color: #6b7280;
+  text-align: center;
+  margin-top: 0.5rem;
+  font-family: "Poppins", sans-serif;
+}
+
 #salesChart {
   width: 100%;
   height: 100%;
 }
 
 #menuPieChart {
-  width: 100%;
-  height: 100%;
+  max-height: 180px;
+  max-width: 100%;
+  flex-grow: 1;
+}
+
+#orderStatusChart {
+  max-height: 180px;
+  max-width: 100%;
+  flex-grow: 1;
 }
 </style>
