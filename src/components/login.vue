@@ -8,7 +8,7 @@
       </div>
 
       <form @submit.prevent="handleLogin" style="text-align: left; margin-bottom: 70px">
-        <div class="mb-4 input-icon-wrapper">
+        <div class="mb-3 input-icon-wrapper">
           <label for="username" class="form-label">Username</label>
           <div class="input-group-custom">
             <i class="fas fa-user icon-left"></i>
@@ -22,7 +22,7 @@
           </div>
         </div>
 
-        <div class="mb-4 input-icon-wrapper">
+        <div class="mb-5 input-icon-wrapper">
           <label for="password" class="form-label">Password</label>
           <div class="input-group-custom">
             <i class="fas fa-lock icon-left"></i>
@@ -48,6 +48,7 @@
             style="border-radius: 20px;"
             :disabled="isLoading"
           >
+            <i class="fas fa-sign-in-alt me-2"></i>
             <span v-if="isLoading">Logging in...</span>
             <span v-else>Masuk</span>
           </button>
@@ -150,15 +151,15 @@ export default {
   color: #fbfbfb;
 }
 
-.btn:hover {
+.btn-custom:hover {
   transform: translateY(-2px);
-  background-color: #E6DF1D;
+  background-color: #3990f4;
   color: #fbfbfb;
 }
 
 .btn-custom {
   background-color: #fbfbfb;
-  color: #E6DF1D;
+  color: #3990f4;
   font-weight: bold;
 }
 

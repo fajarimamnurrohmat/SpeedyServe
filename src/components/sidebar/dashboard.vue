@@ -213,7 +213,7 @@ export default {
       this.menuChart = new Chart(ctx, {
         type: "pie",
         data: {
-          labels: ["Menu Tersedia", "Menu Habis"],
+          labels: ["Tersedia", "Habis"],
           datasets: [
             {
               data: [this.menuTersedia, this.totalMenu - this.menuTersedia],
@@ -569,5 +569,11 @@ export default {
   max-height: 180px;
   max-width: 100%;
   flex-grow: 1;
+}
+
+@media screen and (max-width: 600px) {
+  .chart-description {
+    font-size: 0.7rem;
+  }
 }
 </style>

@@ -88,10 +88,11 @@
       <div class="text-start">
         <label class="form-label">Jumlah Bayar</label>
         <input
-          v-model.number="jumlah_bayar"
-          type="number"
+          v-model="formattedJumlahBayar"
+          type="text"
           class="input-style"
           placeholder="Masukkan jumlah bayar"
+          @input="formatJumlahBayar"
         />
       </div>
     </div>
@@ -140,6 +141,16 @@ export default {
         }
         return total;
       }, 0);
+    },
+    formattedJumlahBayar: {
+      get() {
+        return this.jumlah_bayar ? this.jumlah_bayar.toLocaleString("id-ID") : "";
+      },
+      set(value) {
+        // Menghapus semua karakter non-angka
+        const cleanValue = value.replace(/[^0-9]/g, "");
+        this.jumlah_bayar = cleanValue ? parseInt(cleanValue, 10) : 0;
+      },
     },
   },
   mounted() {

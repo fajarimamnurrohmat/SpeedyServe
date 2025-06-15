@@ -1,9 +1,7 @@
 <template>
   <div v-if="(level === 1) | (level === 2)">
     <h2 style="color: red">maaf bukan hak akses anda untuk halaman ini !</h2>
-    <p>
-      silahkan keluar & masuk sebagai admin untuk bisa masuk ke halaman ini
-    </p>
+    <p>silahkan keluar & masuk sebagai admin untuk bisa masuk ke halaman ini</p>
   </div>
 
   <div class="container mt-4" v-if="level === 3">
@@ -14,7 +12,9 @@
     <!-- Filter -->
     <div class="row mb-3">
       <div class="col-md-3">
-        <label for="startDate">Tanggal Awal:</label>
+        <label for="startDate" class="d-block w-100 text-start"
+          >Tanggal Awal:</label
+        >
         <input
           type="date"
           v-model="startDate"
@@ -23,7 +23,9 @@
         />
       </div>
       <div class="col-md-3">
-        <label for="endDate">Tanggal Akhir:</label>
+        <label for="endDate" class="d-block w-100 text-start"
+          >Tanggal Akhir:</label
+        >
         <input
           type="date"
           v-model="endDate"
@@ -32,7 +34,9 @@
         />
       </div>
       <div class="col-md-3">
-        <label for="selectedMonth">Pilih Bulan:</label>
+        <label for="selectedMonth" class="d-block w-100 text-start"
+          >Pilih Bulan:</label
+        >
         <select v-model="selectedMonth" class="form-select" id="selectedMonth">
           <option value="">Semua Bulan</option>
           <option
@@ -46,7 +50,30 @@
       </div>
       <div class="col-md-3 d-flex align-items-end">
         <button class="btn btn-secondary w-100" @click="resetFilter">
+          <i class="fas fa-undo me-2"></i>
           Reset Filter
+        </button>
+      </div>
+    </div>
+
+    <!-- Search and Export -->
+    <div class="row mb-3">
+      <div class="col-md-6">
+        <label for="searchQuery" class="d-block w-100 text-start"
+          >Cari :</label
+        >
+        <input
+          type="text"
+          v-model="searchQuery"
+          class="form-control"
+          id="searchQuery"
+          placeholder="Cari nama pemesan..."
+        />
+      </div>
+      <div class="col-md-6 d-flex align-items-end mt-3">
+        <button class="btn btn-danger w-100" @click="exportToPDF">
+          <i class="fas fa-file-pdf me-2" style="color: white"></i>
+          Export ke PDF
         </button>
       </div>
     </div>
@@ -98,10 +125,16 @@
     </div>
 
     <!-- Total Penghasilan -->
-    <div class="mt-3 text-start fs-5" v-if="filteredTransactions.length" style="color: grey;">
+    <div
+      class="mt-3 text-start fs-5"
+      v-if="filteredTransactions.length"
+      style="color: grey"
+    >
       Penghasilan Total:
-      <span style="color: green; font-weight: bold;">
-        Rp{{ totalPenghasilan.toLocaleString("id-ID", { minimumFractionDigits: 2 }) }}
+      <span style="color: green; font-weight: bold">
+        Rp{{
+          totalPenghasilan.toLocaleString("id-ID", { minimumFractionDigits: 2 })
+        }}
       </span>
     </div>
 
@@ -133,15 +166,36 @@
                 </div>
                 <div class="detail-item">
                   <strong>Total Harga:</strong>
-                  <span>Rp{{ orderDetail.total_harga?.toLocaleString("id-ID", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</span>
+                  <span
+                    >Rp{{
+                      orderDetail.total_harga?.toLocaleString("id-ID", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })
+                    }}</span
+                  >
                 </div>
                 <div class="detail-item">
                   <strong>Uang Bayar:</strong>
-                  <span>Rp{{ orderDetail.jumlah_bayar?.toLocaleString("id-ID", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</span>
+                  <span
+                    >Rp{{
+                      orderDetail.jumlah_bayar?.toLocaleString("id-ID", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })
+                    }}</span
+                  >
                 </div>
                 <div class="detail-item">
                   <strong>Kembalian:</strong>
-                  <span>Rp{{ orderDetail.kembalian?.toLocaleString("id-ID", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</span>
+                  <span
+                    >Rp{{
+                      orderDetail.kembalian?.toLocaleString("id-ID", {
+                        minimumFractionDigits: 2,
+                        maximumFractionDigits: 2,
+                      })
+                    }}</span
+                  >
                 </div>
                 <div class="detail-item full-width">
                   <strong>Keterangan:</strong>
@@ -158,10 +212,20 @@
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="(item, index) in orderDetail.detail_pesanan" :key="index">
+                  <tr
+                    v-for="(item, index) in orderDetail.detail_pesanan"
+                    :key="index"
+                  >
                     <td>{{ item.nama_menu }}</td>
                     <td>{{ item.jumlah }}</td>
-                    <td>Rp{{ item.subtotal?.toLocaleString("id-ID", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</td>
+                    <td>
+                      Rp{{
+                        item.subtotal?.toLocaleString("id-ID", {
+                          minimumFractionDigits: 2,
+                          maximumFractionDigits: 2,
+                        })
+                      }}
+                    </td>
                   </tr>
                 </tbody>
               </table>
@@ -181,6 +245,8 @@
 
 <script>
 import axios from "axios";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 
 export default {
   data() {
@@ -189,6 +255,7 @@ export default {
       startDate: "",
       endDate: "",
       selectedMonth: "",
+      searchQuery: "",
       showModal: false,
       orderDetail: null,
       level: null,
@@ -223,7 +290,13 @@ export default {
         const matchMonth =
           !this.selectedMonth || txMonth === Number(this.selectedMonth);
 
-        return matchDate && matchMonth;
+        const matchSearch =
+          !this.searchQuery ||
+          tx.nama_pemesan
+            .toLowerCase()
+            .includes(this.searchQuery.toLowerCase());
+
+        return matchDate && matchMonth && matchSearch;
       });
     },
     totalPenghasilan() {
@@ -241,11 +314,14 @@ export default {
       }
       try {
         const token = localStorage.getItem("accessToken");
-        const response = await axios.get("https://speedyservebe-production.up.railway.app/transaksi", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const response = await axios.get(
+          "https://speedyservebe-production.up.railway.app/transaksi",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
         this.transactions = response.data.data.transactions;
       } catch (error) {
         // console.error("Gagal mengambil data transaksi:", error);
@@ -276,6 +352,7 @@ export default {
       this.startDate = "";
       this.endDate = "";
       this.selectedMonth = "";
+      this.searchQuery = "";
     },
     async openDetailModal(id_order) {
       try {
@@ -304,6 +381,81 @@ export default {
       this.showModal = false;
       this.orderDetail = null;
     },
+    exportToPDF() {
+      try {
+        const doc = new jsPDF();
+        doc.setFontSize(16);
+        doc.text("Laporan Penjualan / Transaksi", 14, 20);
+
+        // Tambahkan informasi filter
+        doc.setFontSize(10);
+        let filterText = "Filter: ";
+        if (this.startDate)
+          filterText += `Tanggal Awal: ${this.formatDate(this.startDate)} `;
+        if (this.endDate)
+          filterText += `Tanggal Akhir: ${this.formatDate(this.endDate)} `;
+        if (this.selectedMonth)
+          filterText += `Bulan: ${this.months[this.selectedMonth - 1]} `;
+        if (this.searchQuery) filterText += `Nama Pemesan: ${this.searchQuery}`;
+        if (
+          !this.startDate &&
+          !this.endDate &&
+          !this.selectedMonth &&
+          !this.searchQuery
+        ) {
+          filterText += "Semua Transaksi";
+        }
+        doc.text(filterText.trim(), 14, 30);
+
+        // Buat tabel menggunakan autoTable
+        autoTable(doc, {
+          head: [["No.", "Nama Pemesan", "Tanggal", "Jam", "Total Harga"]],
+          body: this.filteredTransactions.map((tx, index) => [
+            index + 1,
+            tx.nama_pemesan,
+            this.formatDate(tx.waktu),
+            this.formatTime(tx.waktu),
+            `Rp${tx.total_harga.toLocaleString("id-ID", {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })}`,
+          ]),
+          startY: 40,
+          theme: "grid",
+          styles: { fontSize: 8 },
+          headStyles: { fillColor: [49, 132, 7] },
+        });
+
+        // Tambahkan total penghasilan
+        const finalY = doc.lastAutoTable.finalY || 40;
+        doc.setFontSize(12);
+        doc.text(
+          `Penghasilan Total: Rp${this.totalPenghasilan.toLocaleString(
+            "id-ID",
+            {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            }
+          )}`,
+          14,
+          finalY + 10
+        );
+
+        // Simpan PDF
+        const now = new Date();
+        const fileName = `Laporan_Transaksi_${now.getFullYear()}${(
+          now.getMonth() + 1
+        )
+          .toString()
+          .padStart(2, "0")}${now.getDate().toString().padStart(2, "0")}.pdf`;
+        doc.save(fileName);
+      } catch (error) {
+        console.error("Gagal mengekspor PDF:", error);
+        alert(
+          "Gagal mengekspor ke PDF. Pastikan plugin jsPDF terinstal dengan benar."
+        );
+      }
+    },
   },
   mounted() {
     this.fetchTransactions();
@@ -314,7 +466,7 @@ export default {
 </script>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap");
 
 .name-transaksi {
   font-family: "Poppins", sans-serif;
@@ -357,7 +509,7 @@ export default {
 
 .modal-header {
   background: linear-gradient(90deg, #318407, #0b1e02);
-  color: #E6DF1D;
+  color: #e6df1d;
   border-top-left-radius: 20px;
   border-top-right-radius: 20px;
   padding: 15px 20px;
@@ -376,7 +528,7 @@ export default {
 
 .btn-close {
   background: none;
-  color: #E6DF1D;
+  color: #e6df1d;
   font-size: 1.2rem;
   opacity: 0.8;
   transition: opacity 0.3s ease, transform 0.3s ease;
@@ -441,7 +593,7 @@ export default {
 }
 
 .modal-body .table thead {
-  background: linear-gradient(90deg, #E6DF1D, #d4cc17);
+  background: linear-gradient(90deg, #e6df1d, #d4cc17);
   color: #1a1a1a;
   font-weight: 600;
   text-transform: uppercase;
@@ -502,7 +654,7 @@ export default {
   padding: 8px 16px;
   border: none;
   background: linear-gradient(90deg, #318407, #0b1e02);
-  color: #E6DF1D;
+  color: #e6df1d;
   transition: all 0.3s ease;
   text-transform: uppercase;
   letter-spacing: 0.5px;
@@ -512,5 +664,9 @@ export default {
   background: linear-gradient(90deg, #0b1e02, #318407);
   box-shadow: 0 4px 12px rgba(49, 132, 7, 0.4);
   transform: translateY(-2px);
+}
+
+.btn:hover {
+  background-color: red;
 }
 </style>

@@ -13,7 +13,7 @@
           @click="closeModal"
           style="color: red; text-align: right"
         >
-          &times;
+          ×
         </span>
         <h4 class="header-modal">
           {{ editIndex !== null ? "Edit Data Menu" : "Input Data Menu" }}
@@ -55,10 +55,11 @@
             <label for="Harga">Harga</label>
             <p>Masukkan Harga Menu</p>
             <input
-              type="number"
+              type="text"
               id="Harga"
               class="form-controll"
-              v-model="productPrice"
+              v-model="formattedProductPrice"
+              placeholder="Masukkan harga menu"
             />
           </div>
         </div>
@@ -193,6 +194,17 @@ export default {
     },
     totalPages() {
       return Math.ceil(this.products.length / this.rowsPerPage);
+    },
+    formattedProductPrice: {
+      get() {
+        return this.productPrice
+          ? Number(this.productPrice).toLocaleString("id-ID")
+          : "";
+      },
+      set(value) {
+        const cleanValue = value.replace(/[^0-9]/g, "");
+        this.productPrice = cleanValue ? parseInt(cleanValue, 10) : "";
+      },
     },
   },
   methods: {
@@ -508,7 +520,7 @@ export default {
   text-align: left;
   padding: 5px;
   width: 200px;
-  background-color: #fbf9f9;
+  background-color: #fff;
   color: black;
 }
 

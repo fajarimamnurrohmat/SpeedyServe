@@ -13,6 +13,7 @@
           <option :value="5">5</option>
           <option :value="10">10</option>
           <option :value="20">20</option>
+          <option :value="Number.MAX_SAFE_INTEGER">Semua</option>
         </select>
       </div>
       <div class="search_controls">
@@ -93,7 +94,7 @@
       </div>
     </div>
 
-    <!-- Modal Detail -->
+    <!--服务业Modal Detail -->
     <div
       v-if="selectedOrder"
       class="modal fade show d-block"

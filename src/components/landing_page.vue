@@ -99,6 +99,7 @@
   z-index: 1;
   position: relative;
   max-width: 700px;
+  min-width: 100px;
   background-color: white;
   padding: 40px 30px;
   border-radius: 20px;
@@ -127,6 +128,18 @@
   justify-content: center;
   align-items: center;
   gap: 10px;
+}
+
+@media screen and (max-width: 600px) {
+  .name_brand {
+    font-size: 1.8rem;
+  }
+}
+
+@media screen and (max-width: 600px) {
+  .name_welcome {
+    font-size: 0.8rem;
+  }
 }
 
 .description {

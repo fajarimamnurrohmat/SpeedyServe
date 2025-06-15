@@ -381,7 +381,7 @@ export default {
   text-align: left;
   padding: 5px;
   width: 200px;
-  background-color: #fbf9f9;
+  background-color: #fff;
   color: black;
 }
 
