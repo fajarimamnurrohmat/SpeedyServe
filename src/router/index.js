@@ -19,11 +19,11 @@ function startTokenRefresh() {
   const tokenAge = 50; // waktu hidup token (detik)
   const refreshTime = (tokenAge - 10) * 1000; // milidetik
 
-  console.log("Starting token refresh interval...");
+  // console.log("Starting token refresh interval...");
 
   setInterval(async () => {
     try {
-      console.log("Refreshing access token...");
+      // console.log("Refreshing access token...");
       const refreshToken = localStorage.getItem("refreshToken");
       const response = await axios.put(
         "https://speedyservebe-production.up.railway.app/authentications",
@@ -33,7 +33,7 @@ function startTokenRefresh() {
       if (response.data.status === "success") {
         const { accessToken } = response.data.data;
         localStorage.setItem("accessToken", accessToken);
-        console.log("Access token updated:", accessToken);
+        // console.log("Access token updated:", accessToken);
       }
     } catch (error) {
       console.error("Error refreshing token:", error);

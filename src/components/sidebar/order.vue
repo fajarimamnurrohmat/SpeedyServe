@@ -144,7 +144,9 @@ export default {
     },
     formattedJumlahBayar: {
       get() {
-        return this.jumlah_bayar ? this.jumlah_bayar.toLocaleString("id-ID") : "";
+        return this.jumlah_bayar
+          ? this.jumlah_bayar.toLocaleString("id-ID")
+          : "";
       },
       set(value) {
         // Menghapus semua karakter non-angka
@@ -162,11 +164,14 @@ export default {
     async fetchMenu() {
       try {
         const token = localStorage.getItem("accessToken");
-        const res = await axios.get("https://speedyservebe-production.up.railway.app/available_menu", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const res = await axios.get(
+          "https://speedyservebe-production.up.railway.app/available_menu",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
         this.menus = res.data.data.menu;
       } catch (err) {
         console.error("Gagal ambil data menu:", err);
@@ -207,6 +212,19 @@ export default {
         return;
       }
 
+      const confirmSubmit = await Swal.fire({
+        title: "Konfirmasi",
+        text: "Apakah Anda yakin menambahkan pesanan?",
+        icon: "question",
+        showCancelButton: true,
+        confirmButtonText: "Ya",
+        cancelButtonText: "Batal",
+      });
+
+      if (!confirmSubmit.isConfirmed) {
+        return; // Batalkan jika pengguna memilih "Batal"
+      }
+
       const payload = {
         nama_pemesan: this.nama_pemesan,
         no_hp: this.no_hp,
@@ -218,11 +236,15 @@ export default {
 
       try {
         const token = localStorage.getItem("accessToken");
-        const res = await axios.post("https://speedyservebe-production.up.railway.app/order", payload, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const res = await axios.post(
+          "https://speedyservebe-production.up.railway.app/order",
+          payload,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
 
         // Konfirmasi cetak resi
         const printConfirm = await Swal.fire({
@@ -237,11 +259,11 @@ export default {
         if (printConfirm.isConfirmed) {
           this.printReceipt();
         }
-        
+
         if (!printConfirm.isConfirmed) {
           Swal.fire("Berhasil", "Pesanan berhasil dikirim!", "success");
         }
-        
+
         // Reset form
         this.nama_pemesan = "";
         this.no_hp = "";
@@ -254,61 +276,76 @@ export default {
         Swal.fire("Error", "Terjadi kesalahan saat mengirim pesanan.", "error");
       }
     },
-    async printReceipt() {
-      const receiptContent = `
-              NOTA
-      "Nasgor Mbk Indah"
-      ------------------------
-      Nama: ${this.nama_pemesan}
-      Tanggal: ${new Date().toLocaleDateString('id-ID')}
-      Total: Rp${this.totalHarga.toLocaleString('id-ID')}
-      Bayar: Rp${this.jumlah_bayar.toLocaleString('id-ID')}
-      Kembali: Rp${(this.jumlah_bayar - this.totalHarga).toLocaleString('id-ID')}
-      Ket: ${this.keterangan}
-      Detail: 
-          ${this.detail_pesanan.map(item => {
-          const menu = this.menus.find(m => m.id_menu === item.id_menu);
-          return `${menu?.nama_menu || 'Unknown'} x${item.jumlah}`;
-        }).join('\n          ')}
-      ------------------------
-            TERIMA KASIH!
-      ------------------------
-      pemesanan
-      Wa.0895367354421
+    printReceipt() {
+      const printContent = `
+        <div style="font-family: Arial, sans-serif; font-size: 12px; width: 58mm; margin: 0 auto; padding: 10px;">
+          <h2>NOTA</h2>
+          <h3>Nasgor Mbk Indah</h3>
+          <p>-----------------------------</p>
+          <p>Nama   : ${this.nama_pemesan}</p>
+          <p>No Hp  : ${this.no_hp || "-"}</p>
+          <p>Waktu  : ${new Date().toLocaleDateString(
+            "id-ID"
+          )} ${new Date().toLocaleTimeString("id-ID")}</p>
+          <p>Opsi   : ${this.opsi_pesanan}</p>
+          <p>Pesanan:</p>
+          <ul style="list-style: none; padding-left: 0;">
+            ${this.detail_pesanan
+              .map((item) => {
+                const menu = this.menus.find((m) => m.id_menu === item.id_menu);
+                return `<li> - ${menu?.nama_menu || "Unknown"} x${
+                  item.jumlah
+                }</li>`;
+              })
+              .join("")}
+          </ul>
+          <p>Ket    : ${this.keterangan || "-"}</p>
+          <p>Total  : Rp${this.totalHarga.toLocaleString("id-ID")}</p>
+          <p>Bayar  : Rp${this.jumlah_bayar.toLocaleString("id-ID")}</p>
+          <p>-----------------------------</p>
+          <p>Kembali: Rp${(this.jumlah_bayar - this.totalHarga).toLocaleString(
+            "id-ID"
+          )}</p>
+          <p>-----------------------------</p>
+          <p>        TERIMA KASIH!        </p>
+          <p>-----------------------------</p>
+          <p style="text-align: center;">pemesanan</p>
+          <p style="text-align: center;">Wa.0895367354421</p>
+          <p>&nbsp;</p>
+          <p>&nbsp;</p>
+          <p>By:SpeedyServe</p>
+          <p>&nbsp;</p>
+          <p>&nbsp;</p>
+          <p>&nbsp;</p>
+        </div>
       `;
 
-      if (!navigator.bluetooth) {
-        Swal.fire("Error", "Browser tidak mendukung Bluetooth.", "error");
-        return;
-      }
+      // Buat elemen sementara
+      const printWindow = window.open("", "", "width=300,height=400");
+      printWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>Cetak Resi</title>
+          <style>
+            body { margin: 0; padding: 0; }
+            @media print {
+              body { margin: 0; }
+              .page-break { display: block; page-break-before: always; }
+            }
+          </style>
+        </head>
+        <body>${printContent}</body>
+        </html>
+      `);
+      printWindow.document.close();
 
-      try {
-        // Ambil informasi koneksi dari localStorage
-        const savedDeviceInfo = JSON.parse(localStorage.getItem('bluetoothDevice'));
-        if (!savedDeviceInfo) {
-          throw new Error('Koneksi printer belum disimpan. Silakan hubungkan printer di halaman pengaturan.');
-        }
-
-        // Minta ulang koneksi jika diperlukan
-        const device = await navigator.bluetooth.requestDevice({
-          filters: [{ services: ['000018f0-0000-1000-8000-00805f9b34fb'], name: savedDeviceInfo.name }]
-        });
-        const server = await device.gatt.connect();
-        const service = await server.getPrimaryService('000018f0-0000-1000-8000-00805f9b34fb');
-        const characteristics = await service.getCharacteristics();
-        const writeChar = characteristics.find(char => char.properties.write);
-
-        if (!writeChar) {
-          throw new Error('Karakteristik untuk menulis data tidak ditemukan.');
-        }
-
-        const encoder = new TextEncoder('utf-8');
-        const data = encoder.encode(receiptContent + '\x1D\x56\x41\x00'); // Cetak dan potong
-        await writeChar.writeValue(data);
-        Swal.fire("Sukses", "Resi berhasil dicetak!", "success");
-      } catch (error) {
-        Swal.fire("Error", "Gagal mencetak resi: " + error.message + ". Silakan periksa koneksi printer atau hubungkan ulang di halaman pengaturan.", "error");
-      }
+      // Tunggu sebentar agar konten dimuat, lalu cetak
+      setTimeout(() => {
+        printWindow.print();
+        printWindow.close();
+        Swal.fire("Sukses", "Pesanan terkirim & resi berhasil di cetak", "success");
+      }, 500);
     },
   },
 };

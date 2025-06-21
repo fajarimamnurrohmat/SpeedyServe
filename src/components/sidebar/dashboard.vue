@@ -20,9 +20,28 @@
         <p class="chart-description">Total pesanan: {{ totalOrder }}</p>
       </div>
       <div class="stat-card">
-        <h3 class="chart-title">Grafik Menu</h3>
-        <canvas id="menuPieChart"></canvas>
-        <p class="chart-description">Total menu: {{ totalMenu }}</p>
+        <h3 class="chart-title">Statistik Menu</h3>
+        <div class="menu-stats">
+          <div class="menu-total-box">
+            <span class="menu-total-label">Total Menu</span>
+            <span class="menu-total-value">{{ totalMenu }}</span>
+          </div>
+          <div class="menu-habis-box">
+            <span class="menu-habis-label">Menu Habis</span>
+            <div class="menu-habis-list">
+              <span
+                v-for="menu in products.filter((p) => !p.tersedia)"
+                :key="menu.id_menu"
+                class="menu-habis-item"
+              >
+                {{ menu.nama_menu }}
+              </span>
+              <span v-if="products.filter((p) => !p.tersedia).length === 0" class="menu-habis-item">
+                Tidak ada menu habis
+              </span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -40,9 +59,7 @@
 import axios from "axios";
 import {
   Chart,
-  PieController,
   BarController,
-  ArcElement,
   BarElement,
   CategoryScale,
   LinearScale,
@@ -52,9 +69,7 @@ import {
 } from "chart.js";
 
 Chart.register(
-  PieController,
   BarController,
-  ArcElement,
   BarElement,
   CategoryScale,
   LinearScale,
@@ -71,12 +86,11 @@ export default {
       menuTersedia: 0,
       totalOrder: 0,
       transactions: [],
-      menuChart: null,
       orderStatusChart: null,
       salesChart: null,
       products: [],
       orders: [],
-      orderStatus: {}, // Inisialisasi sebagai objek kosong
+      orderStatus: {},
     };
   },
   methods: {
@@ -96,7 +110,6 @@ export default {
           }
         );
         this.transactions = response.data.data.transactions || [];
-        console.log("Data Transactions:", this.transactions);
         this.updateSalesChart();
       } catch (error) {
         console.error("Gagal mengambil data transaksi:", error);
@@ -112,9 +125,7 @@ export default {
           }
         );
         this.products = response.data.data.menu.reverse() || [];
-        console.log("Data Menu:", this.products);
         this.calculateMenuStats();
-        this.updateMenuChart();
       } catch (error) {
         console.error("Gagal mengambil data menu:", error);
       }
@@ -131,7 +142,6 @@ export default {
           }
         );
         this.orders = response.data.data.orders || [];
-        console.log("Data Orders:", this.orders);
         this.calculateOrderStats();
         this.updateOrderStatusChart();
       } catch (error) {
@@ -146,15 +156,14 @@ export default {
     },
     calculateOrderStats() {
       this.totalOrder = this.orders.length;
-      this.orderStatus = {}; // Reset orderStatus setiap kali dihitung
+      this.orderStatus = {};
       this.orders.forEach((order) => {
-        const status = order.status_order || "Tidak Diketahui"; // Handle jika status null/undefined
+        const status = order.status_order || "Tidak Diketahui";
         if (!this.orderStatus[status]) {
           this.orderStatus[status] = 0;
         }
         this.orderStatus[status]++;
       });
-      console.log("Order Status:", this.orderStatus); // Debug
     },
     processMonthlyData() {
       const monthlyData = {};
@@ -179,84 +188,6 @@ export default {
 
       return { labels, data };
     },
-    updateMenuChart() {
-      const ctx = document.getElementById("menuPieChart").getContext("2d");
-      if (this.menuChart) {
-        this.menuChart.destroy();
-      }
-
-      if (this.totalMenu === 0) {
-        this.menuChart = new Chart(ctx, {
-          type: "pie",
-          data: {
-            labels: ["Tidak Ada Data"],
-            datasets: [
-              {
-                data: [1],
-                backgroundColor: ["#D1D5DB"],
-                borderWidth: 1,
-              },
-            ],
-          },
-          options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-              legend: { display: false },
-              tooltip: { enabled: false },
-            },
-          },
-        });
-        return;
-      }
-
-      this.menuChart = new Chart(ctx, {
-        type: "pie",
-        data: {
-          labels: ["Tersedia", "Habis"],
-          datasets: [
-            {
-              data: [this.menuTersedia, this.totalMenu - this.menuTersedia],
-              backgroundColor: ["#10B981", "#EF4444"],
-              borderWidth: 1,
-            },
-          ],
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: {
-              position: "top",
-              labels: {
-                font: {
-                  size: 12,
-                },
-                color: "#4B5563",
-              },
-            },
-            tooltip: {
-              callbacks: {
-                label: function (context) {
-                  let label = context.label || "";
-                  let value = context.parsed || 0;
-                  return `${label}: ${value} (${(
-                    (value / this.totalMenu) *
-                    100
-                  ).toFixed(1)}%)`;
-                }.bind(this),
-              },
-              titleFont: {
-                size: 12,
-              },
-              bodyFont: {
-                size: 12,
-              },
-            },
-          },
-        },
-      });
-    },
     updateOrderStatusChart() {
       const ctx = document.getElementById("orderStatusChart").getContext("2d");
       if (this.orderStatusChart) {
@@ -265,12 +196,13 @@ export default {
 
       if (this.totalOrder === 0) {
         this.orderStatusChart = new Chart(ctx, {
-          type: "pie",
+          type: "bar",
           data: {
             labels: ["Tidak Ada Data"],
             datasets: [
               {
-                data: [1],
+                label: "Jumlah Pesanan",
+                data: [0],
                 backgroundColor: ["#D1D5DB"],
                 borderWidth: 1,
               },
@@ -282,6 +214,14 @@ export default {
             plugins: {
               legend: { display: false },
               tooltip: { enabled: false },
+            },
+            scales: {
+              y: {
+                beginAtZero: true,
+                ticks: {
+                  precision: 0,
+                },
+              },
             },
           },
         });
@@ -292,11 +232,12 @@ export default {
       const orderData = orderLabels.map((status) => this.orderStatus[status]);
 
       this.orderStatusChart = new Chart(ctx, {
-        type: "pie",
+        type: "bar",
         data: {
           labels: orderLabels,
           datasets: [
             {
+              label: "Dalam Antrian",
               data: orderData,
               backgroundColor: ["#059669", "#FACC15"],
               borderWidth: 1,
@@ -319,8 +260,8 @@ export default {
             tooltip: {
               callbacks: {
                 label: function (context) {
-                  let label = context.label || "";
-                  let value = context.parsed || 0;
+                  let label = context.dataset.label || "";
+                  let value = context.parsed.y || 0;
                   return `${label}: ${value} (${(
                     (value / this.totalOrder) *
                     100
@@ -332,6 +273,38 @@ export default {
               },
               bodyFont: {
                 size: 12,
+              },
+            },
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              title: {
+                display: true,
+                text: "Jumlah Pesanan",
+                font: {
+                  size: 12,
+                },
+              },
+              ticks: {
+                precision: 0,
+                font: {
+                  size: 10,
+                },
+              },
+            },
+            x: {
+              title: {
+                display: true,
+                text: "Status Pesanan",
+                font: {
+                  size: 12,
+                },
+              },
+              ticks: {
+                font: {
+                  size: 10,
+                },
               },
             },
           },
@@ -491,7 +464,7 @@ export default {
 
 .stat-cards {
   display: grid;
-  grid-template-columns: 1fr 1fr; /* Dua kolom untuk menu dan order status pie chart */
+  grid-template-columns: 1fr 1fr;
   gap: 1.5rem;
   margin-bottom: 1.5rem;
 }
@@ -503,7 +476,7 @@ export default {
   padding: 1.25rem;
   border: 1px solid #e5e7eb;
   transition: box-shadow 0.3s;
-  height: 300px; /* Tingkatkan tinggi untuk memberikan ruang lebih */
+  height: 300px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -512,16 +485,6 @@ export default {
 
 .stat-card:hover {
   box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
-}
-
-.stat-label {
-  color: #6b7280;
-}
-
-.stat-value {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: #4b5563;
 }
 
 .chart-card {
@@ -559,16 +522,72 @@ export default {
   height: 100%;
 }
 
-#menuPieChart {
+#orderStatusChart {
   max-height: 180px;
   max-width: 100%;
   flex-grow: 1;
 }
 
-#orderStatusChart {
-  max-height: 180px;
-  max-width: 100%;
+.menu-stats {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   flex-grow: 1;
+  width: 100%;
+  gap: 1rem;
+}
+
+.menu-total-box {
+  background-color: #e6fffa;
+  border: 1px solid #10B981;
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+  text-align: center;
+  width: 150px;
+}
+
+.menu-total-label {
+  font-size: 0.9rem;
+  color: #4B5563;
+  font-family: "Poppins", sans-serif;
+}
+
+.menu-total-value {
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #10B981;
+  display: block;
+}
+
+.menu-habis-box {
+  background-color: #fff1f2;
+  border: 1px solid #EF4444;
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+  text-align: center;
+  width: 150px;
+}
+
+.menu-habis-label {
+  font-size: 0.9rem;
+  color: #4B5563;
+  font-family: "Poppins", sans-serif;
+  display: block;
+}
+
+.menu-habis-list {
+  margin-top: 0.5rem;
+  max-height: 100px;
+  overflow-y: auto;
+}
+
+.menu-habis-item {
+  display: block;
+  font-size: 0.85rem;
+  color: #EF4444;
+  font-family: "Poppins", sans-serif;
+  padding: 0.25rem 0;
 }
 
 @media screen and (max-width: 600px) {

@@ -37,6 +37,7 @@
             <th scope="col">Opsi Pesanan</th>
             <th scope="col">Total</th>
             <th scope="col">Aksi</th>
+            <th scope="col">Tanggal</th>
             <th scope="col">Waktu</th>
             <th scope="col">Status</th>
           </tr>
@@ -59,11 +60,12 @@
                 Detail
               </button>
             </td>
+            <td>{{ formatDate(order.waktu) }}</td>
             <td>{{ formatTimeOnly(order.waktu) }}</td>
             <td>{{ order.status_order }}</td>
           </tr>
           <tr v-if="paginatedOrders.length === 0">
-            <td colspan="7" class="text-center">Data tidak ditemukan</td>
+            <td colspan="8" class="text-center">Data tidak ditemukan</td>
           </tr>
         </tbody>
       </table>
@@ -94,7 +96,7 @@
       </div>
     </div>
 
-    <!--服务业Modal Detail -->
+    <!-- Modal Detail -->
     <div
       v-if="selectedOrder"
       class="modal fade show d-block"
@@ -111,7 +113,8 @@
               type="button"
               class="btn-close"
               @click="selectedOrder = null"
-            ></button>
+              style="color: red; text-align: center; font-weight: bold;"
+            >X</button>
           </div>
           <div class="modal-body">
             <div class="order-details-grid">
@@ -194,29 +197,28 @@
             <!-- Tombol hanya untuk level 1 -->
             <button
               v-if="level === 1"
-              class="btn btn-primary"
+              class="btn btn-action"
               @click="updateStatus('Sedang Diproses')"
+              :disabled="selectedOrder.status_order === 'Sedang Diproses'"
             >
               Sedang Diproses
             </button>
             <button
               v-if="level === 1"
-              class="btn btn-success"
+              class="btn btn-action"
               @click="updateStatus('Selesai')"
+              :disabled="selectedOrder.status_order === 'Dalam Antrian'"
             >
               Selesai
             </button>
 
-            <!-- Tombol hapus untuk semua level -->
+            <!-- Tombol hapus untuk level 2 -->
             <button
               v-if="level === 2"
               class="btn btn-danger"
               @click="deleteOrder(selectedOrder.id_order)"
             >
               Hapus
-            </button>
-            <button class="btn btn-secondary" @click="selectedOrder = null">
-              Tutup
             </button>
           </div>
         </div>
@@ -399,6 +401,14 @@ export default {
     formatTimeOnly(dateTimeString) {
       const date = new Date(dateTimeString);
       return date.toLocaleTimeString("id-ID", { hour12: false });
+    },
+    formatDate(dateTimeString) {
+      const date = new Date(dateTimeString);
+      return date.toLocaleDateString("id-ID", {
+        day: "2-digit",
+        month: "long",
+        year: "numeric",
+      });
     },
   },
   watch: {
@@ -594,8 +604,7 @@ export default {
   justify-content: flex-end;
 }
 
-.btn-primary,
-.btn-success,
+.btn-action,
 .btn-danger,
 .btn-secondary {
   font-family: "Poppins", sans-serif;
@@ -609,26 +618,21 @@ export default {
   letter-spacing: 0.5px;
 }
 
-.btn-primary {
-  background: linear-gradient(90deg, #318407, #0b1e02);
-  color: #e6df1d;
-}
-
-.btn-primary:hover {
-  background: linear-gradient(90deg, #0b1e02, #318407);
-  box-shadow: 0 4px 12px rgba(49, 132, 7, 0.4);
-  transform: translateY(-2px);
-}
-
-.btn-success {
+.btn-action {
   background: linear-gradient(90deg, #28a745, #1e7e34);
   color: #fff;
 }
 
-.btn-success:hover {
+.btn-action:hover {
   background: linear-gradient(90deg, #1e7e34, #28a745);
   box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4);
   transform: translateY(-2px);
+}
+
+.btn-action:disabled {
+  background: linear-gradient(90deg, #6c757d, #6c757d);
+  color: #fff;
+  cursor: not-allowed;
 }
 
 .btn-danger {

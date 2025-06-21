@@ -9,6 +9,11 @@
       Halaman Penjualan / Transaksi
     </h2>
 
+    <!-- Pesan Error Validasi Tanggal -->
+    <div v-if="dateError" class="alert alert-danger" role="alert">
+      {{ dateError }}
+    </div>
+
     <!-- Filter -->
     <div class="row mb-3">
       <div class="col-md-3">
@@ -34,8 +39,8 @@
         />
       </div>
       <div class="col-md-3">
-        <label for="selectedMonth" class="d-block w-100 text-start"
-          >Pilih Bulan:</label
+        <label for="selectedMonth" class="d-block w-100 text-start">
+          Pilih Bulan:</label
         >
         <select v-model="selectedMonth" class="form-select" id="selectedMonth">
           <option value="">Semua Bulan</option>
@@ -259,6 +264,7 @@ export default {
       showModal: false,
       orderDetail: null,
       level: null,
+      dateError: "", // Properti baru untuk pesan error tanggal
       months: [
         "Januari",
         "Februari",
@@ -277,6 +283,10 @@ export default {
   },
   computed: {
     filteredTransactions() {
+      // Jika ada error tanggal, kembalikan array kosong untuk tidak menampilkan data
+      if (this.dateError) {
+        return [];
+      }
       return this.transactions.filter((tx) => {
         const txDate = new Date(tx.waktu);
         const txMonth = txDate.getMonth() + 1;
@@ -306,7 +316,27 @@ export default {
       );
     },
   },
+  watch: {
+    // Watcher untuk memvalidasi tanggal awal dan akhir
+    startDate(newStartDate) {
+      this.validateDates(newStartDate, this.endDate);
+    },
+    endDate(newEndDate) {
+      this.validateDates(this.startDate, newEndDate);
+    },
+  },
   methods: {
+    // Fungsi untuk memvalidasi tanggal
+    validateDates(startDate, endDate) {
+      this.dateError = "";
+      if (startDate && endDate) {
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+        if (end < start) {
+          this.dateError = "Tanggal akhir harus setelah tanggal awal.";
+        }
+      }
+    },
     async fetchTransactions() {
       const userLevel = localStorage.getItem("userLevel");
       if (userLevel !== "3") {
@@ -353,6 +383,7 @@ export default {
       this.endDate = "";
       this.selectedMonth = "";
       this.searchQuery = "";
+      this.dateError = ""; // Reset pesan error saat filter direset
     },
     async openDetailModal(id_order) {
       try {
